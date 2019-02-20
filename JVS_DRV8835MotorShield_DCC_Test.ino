@@ -29,8 +29,8 @@ enum Turntable_NewActions
   STOP,                                                    // Stop Turning
   POS                                                      // Bridge in Position
 };
-enum Turntable_NewActions Turntable_NewAction = POS;
 enum Turntable_NewActions Turntable_OldAction = POS;
+enum Turntable_NewActions Turntable_NewAction = POS;
 
 const char* Turntable_State[] = {"T1CW", "T1CCW", "TCW", "TCCW", "T180", "STOP", "POS"};
 
@@ -183,16 +183,16 @@ void DCC_Accessory_CheckStatus()
           Output_Pin = DCC_Accessory[addr].OutputPin1;     // Set Arduino Output Pin
           Turntable_OldAction = Turntable_NewAction;
           Turntable_NewAction = STOP;
-          PrintStatus();
-          Turntable_Stop();                                // Motor M1 Stop
+          //PrintStatus();
+          //Turntable_Stop();                                // Motor M1 Stop
         }
         if (DCC_Accessory[addr].Button == 1)               // Green Button : 1 = INPUT
         {
           Output_Pin = DCC_Accessory[addr].OutputPin2;     // Set Arduino Output Pin
           Turntable_OldAction = Turntable_NewAction;
           Turntable_NewAction = STOP;
-          PrintStatus();
-          Turntable_Stop();                                // Motor M1 Stop
+          //PrintStatus();
+          //Turntable_Stop();                                // Motor M1 Stop
         }
         break;
       case (226):                                          // DCC Address LDT 226 0 = CLEAR, 1 = TURN 180
@@ -201,8 +201,8 @@ void DCC_Accessory_CheckStatus()
           Output_Pin = DCC_Accessory[addr].OutputPin1;     // Set Arduino Output Pin
           Turntable_OldAction = Turntable_NewAction;
           Turntable_NewAction = STOP;
-          PrintStatus();
-          Turntable_Stop();                                // Motor M1 Stop
+          //PrintStatus();
+          //Turntable_Stop();                                // Motor M1 Stop
         }
         if (DCC_Accessory[addr].Button == 1)               // Green Button : 1 = TURN 180
         {
@@ -212,7 +212,7 @@ void DCC_Accessory_CheckStatus()
             Turntable_NewTrack = Turntable_NewTrack - maxTrack;
           Turntable_OldAction = Turntable_NewAction;
           Turntable_NewAction = T180;
-          PrintStatus();
+          //PrintStatus();
         }
         break;
       case (227):                                          // DCC Address LDT 227 0 = 1 STEP CW, 1 = 1 STEP CCW
@@ -224,8 +224,8 @@ void DCC_Accessory_CheckStatus()
             Turntable_NewTrack = Turntable_NewTrack - maxTrack;
           Turntable_OldAction = Turntable_NewAction;
           Turntable_NewAction = T1CW;
-          PrintStatus();
-          Turntable_MotorCW();                             // Motor M1 Forward
+          //PrintStatus();
+          //Turntable_MotorCW();                             // Motor M1 Forward
         }
         if (DCC_Accessory[addr].Button == 1)               // Green Button : 1 = TURN 1 Step Counter ClockWise
         {
@@ -235,11 +235,12 @@ void DCC_Accessory_CheckStatus()
             Turntable_NewTrack = Turntable_NewTrack + maxTrack;
           Turntable_OldAction = Turntable_NewAction;
           Turntable_NewAction = T1CCW;
-          PrintStatus();
-          Turntable_MotorCCW();                            // Motor M1 Reverse
+          //PrintStatus();
+          //Turntable_MotorCCW();                            // Motor M1 Reverse
         }
         break;
       default:
+	    /*
         if (DCC_Accessory[addr].Button == 0)               // Red Button   : 0 = Goto Track Track1
         {
           Output_Pin = DCC_Accessory[addr].OutputPin1;     // Set Arduino Output Pin
@@ -265,6 +266,7 @@ void DCC_Accessory_CheckStatus()
           Turntable_OldAction = Turntable_NewAction;
           Turntable_NewAction = STOP;
         }
+		*/
         break;
     }
   }
@@ -282,24 +284,38 @@ void loop()
 {
   DCC_Accessory_CheckStatus();                             // Check DCC Accessory Status
   Turntable_CheckSwitch();                                 // Check Kato Turntable Pin 1
-  if (Turntable_NewAction == POS)                             // Bridge in next position
+  if ((Turntable_NewAction == POS) && (Turntable_OldAction != POS))
   {
-    if (Turntable_OldAction == T1CW || Turntable_OldAction == TCW)
+    //PrintStatus();
+    if ((Turntable_OldAction == T1CW || Turntable_OldAction == TCW))
     {
-      digitalWrite(Output_Pin, LOW);                     // LED OFF
+      digitalWrite(Output_Pin, LOW);                       // LED OFF
       Turntable_Current = Turntable_Current + 1;
-      if (Turntable_Current >= maxTrack)                 // From Track 35 to Track 0
+      if (Turntable_Current >= maxTrack)                   // From Track 35 to Track 0
         Turntable_Current = Turntable_Current - maxTrack;
     }
     if (Turntable_OldAction == T1CCW || Turntable_OldAction == TCCW)
     {
       Turntable_Current = Turntable_Current - 1;
-      if (Turntable_Current < 0)                         // From Track 0 to Track 35
+      if (Turntable_Current < 0)                           // From Track 0 to Track 35
         Turntable_Current = Turntable_Current + maxTrack;
     }
-    if (Turntable_Current == Turntable_NewTrack)         // Bridge in position
-      Turntable_Stop();                                  // Motor M1 Stop
+    if (Turntable_Current == Turntable_NewTrack)           // Bridge in position
+      Turntable_Stop();                                    // Motor M1 Stop
   }
+  
+  if ((Turntable_NewAction == T1CW) && (Turntable_OldAction != T1CW))
+  {
+    PrintStatus();
+    Turntable_MotorCW();                                   // Motor M1 Forward
+  }
+  
+  if ((Turntable_NewAction == T1CCW) && (Turntable_OldAction != T1CCW))
+  {
+    PrintStatus();
+    Turntable_MotorCCW();                                  // Motor M1 Reverse
+  }
+
 } // END loop
 
 
@@ -311,8 +327,8 @@ void Turntable_CheckSwitch()                               // From HIGH to LOW =
     if (Turntable_NewSwitchState == LOW)
     {	
       Turntable_OldAction = Turntable_NewAction;
-      Turntable_NewAction = POS;                              // Bridge in next position
-      PrintStatus();
+      Turntable_NewAction = POS;                           // Bridge in next position
+      //PrintStatus();
     }
   }
   Turntable_OldSwitchState = Turntable_NewSwitchState;
