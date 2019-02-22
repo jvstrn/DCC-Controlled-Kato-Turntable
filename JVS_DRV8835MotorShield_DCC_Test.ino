@@ -1,23 +1,23 @@
 #include <DRV8835MotorShield.h>
 #include <DCC_Decoder.h>                                   // Mynabay DCC library
 
-#define kDCC_INTERRUPT             0                       // DCC Interrupt 0
-#define DCC_PIN                    2                       // DCC signal = Interrupt 0
-#define LED_PIN                   13                       // Onboard Arduino LED Pin
-#define TURNTABLE_SWITCH_PIN       6                       // Kato Turntable Pin 1
-#define MAX_DCC_Accessories        3                       // Number of DCC Accessory Decoders
-#define maxSpeed                 400                       // Speed between -400 = Reversed to 400 = Forward (-3 to +3 VDC)
-#define maxTrack                  36                       // Total Number of Turntable Tracks
-
-byte Output_Pin               =   13;                      // Arduino LED Pin
-int Turntable_Count           =    0;                      // Track Counter
-int Turntable_Current         =    0;                      // Current Turntable Track
-int Turntable_NewTrack        =    0;                      // New Turntable Track
-int speedValue                =  200;                      // Turntable Motor Speed
-int Turntable_NewSwitchState  = HIGH;                      // New Switch Status (From HIGH to LOW = Bridge in position)
-int Turntable_OldSwitchState  = HIGH;                      // Old Switch Status (HIGH = Bridge not in position)
-String New_Message            =   "";                      // New Message to Serial Print
-String Old_Message            =   "";                      // Old Message to Serial Print
+#define kDCC_INTERRUPT                  0                  // DCC Interrupt 0
+#define DCC_PIN                         2                  // DCC signal = Interrupt 0
+#define LED_PIN                        13                  // Onboard Arduino LED Pin
+#define TURNTABLE_SWITCH_PIN            6                  // Kato Turntable Pin 1
+#define MAX_DCC_Accessories             3                  // Number of DCC Accessory Decoders
+#define maxSpeed                      400                  // Speed between -400 = Reversed to 400 = Forward (-3 to +3 VDC)
+#define maxTrack                       36                  // Total Number of Turntable Tracks
+ 
+byte Output_Pin                    =   13;                 // Arduino LED Pin
+int Turntable_Count                =    0;                 // Track Counter
+int Turntable_Current              =    0;                 // Current Turntable Track
+int Turntable_NewTrack             =    0;                 // New Turntable Track
+int speedValue                     =  200;                 // Turntable Motor Speed
+int Turntable_NewSwitchState       = HIGH;                 // New Switch Status (From HIGH to LOW = Bridge in position)
+int Turntable_OldSwitchState       = HIGH;                 // Old Switch Status (HIGH = Bridge not in position)
+unsigned long Turntable_SwitchTime =    0;                 // Last time the output pin was toggled
+unsigned long Turntable_SwitchDelay =   5;                 // Debounce time
 
 enum Turntable_NewActions
 {
@@ -27,12 +27,14 @@ enum Turntable_NewActions
   TCCW,                                                    // Turn Counter ClockWise
   T180,                                                    // Turn 180
   STOP,                                                    // Stop Turning
-  POS                                                      // Bridge in Position
+  POS,                                                     // Bridge in Position
+  MCW,                                                     // Motor ClockWise
+  MCCW                                                     // Motor Counter ClockWise
 };
 enum Turntable_NewActions Turntable_OldAction = POS;
 enum Turntable_NewActions Turntable_NewAction = POS;
 
-const char* Turntable_State[] = {"T1CW", "T1CCW", "TCW", "TCCW", "T180", "STOP", "POS"};
+const char* Turntable_State[] = {"T1CW", "T1CCW", "TCW", "TCCW", "T180", "STOP", "POS", "MCW", "MCCW"};
 
 DRV8835MotorShield        Turntable;                       // Turntable Motor M1 = Bridge, Motor M2 = Lock
 
@@ -55,7 +57,9 @@ DCC_Accessory_Address DCC_Accessory[MAX_DCC_Accessories];
 
 void Turntable_Stop()
 {
+  
   digitalWrite(Output_Pin, LOW);                           // LED OFF
+  delay(100);
   Turntable.setM1Speed(0);                                 // Motor M1 Stop
 } // END Turntable_Stop
 
@@ -78,6 +82,13 @@ void setup()
 {
   Serial.begin(38400);
   Serial.println("DCC Packet Analyze");
+  /*
+  for (i=0; i< NUMBUTTONS; i++)
+  {
+    pinMode(buttons[i], INPUT);
+    digitalWrite(buttons[i], HIGH);
+  }
+  */
   pinMode(TURNTABLE_SWITCH_PIN, INPUT);                    // Kato Turntable Pin 1
   pinMode(LED_PIN, OUTPUT);                                // Internal LED Arduino Pin 13
   digitalWrite(LED_PIN,LOW);                               // Turn Off Arduino LED at startup
@@ -284,36 +295,53 @@ void loop()
 {
   DCC_Accessory_CheckStatus();                             // Check DCC Accessory Status
   Turntable_CheckSwitch();                                 // Check Kato Turntable Pin 1
+  
   if ((Turntable_NewAction == POS) && (Turntable_OldAction != POS))
   {
-    //PrintStatus();
-    if ((Turntable_OldAction == T1CW || Turntable_OldAction == TCW))
+
+    if ((Turntable_OldAction == MCW || Turntable_OldAction == TCW))
     {
       digitalWrite(Output_Pin, LOW);                       // LED OFF
       Turntable_Current = Turntable_Current + 1;
       if (Turntable_Current >= maxTrack)                   // From Track 35 to Track 0
         Turntable_Current = Turntable_Current - maxTrack;
     }
-    if (Turntable_OldAction == T1CCW || Turntable_OldAction == TCCW)
+    
+    if (Turntable_OldAction == MCCW || Turntable_OldAction == TCCW)
     {
+      digitalWrite(Output_Pin, LOW);                       // LED OFF
       Turntable_Current = Turntable_Current - 1;
       if (Turntable_Current < 0)                           // From Track 0 to Track 35
         Turntable_Current = Turntable_Current + maxTrack;
     }
+    
     if (Turntable_Current == Turntable_NewTrack)           // Bridge in position
+    {
+      PrintStatus();
       Turntable_Stop();                                    // Motor M1 Stop
+      Turntable_OldAction = Turntable_NewAction;
+      Turntable_NewAction = STOP;
+      Turntable_NewTrack = 0;
+      PrintStatus();
+    }
   }
   
   if ((Turntable_NewAction == T1CW) && (Turntable_OldAction != T1CW))
   {
     PrintStatus();
     Turntable_MotorCW();                                   // Motor M1 Forward
+    Turntable_OldAction = Turntable_NewAction;
+    Turntable_NewAction = MCW;
+    PrintStatus();
   }
   
   if ((Turntable_NewAction == T1CCW) && (Turntable_OldAction != T1CCW))
   {
     PrintStatus();
     Turntable_MotorCCW();                                  // Motor M1 Reverse
+    Turntable_OldAction = Turntable_NewAction;
+    Turntable_NewAction = MCCW;
+    PrintStatus();
   }
 
 } // END loop
@@ -321,17 +349,25 @@ void loop()
 
 void Turntable_CheckSwitch()                               // From HIGH to LOW = Bridge in next position
 {
-  Turntable_NewSwitchState = digitalRead(TURNTABLE_SWITCH_PIN);
-  if (Turntable_NewSwitchState != Turntable_OldSwitchState)
+  int SwitchState = digitalRead(TURNTABLE_SWITCH_PIN);
+  if (SwitchState != Turntable_OldSwitchState)
   {
-    if (Turntable_NewSwitchState == LOW)
-    {	
-      Turntable_OldAction = Turntable_NewAction;
-      Turntable_NewAction = POS;                           // Bridge in next position
-      //PrintStatus();
+	  Turntable_SwitchTime = millis();
+  }
+  if ((millis() - Turntable_SwitchTime) > Turntable_SwitchDelay)
+  {
+    if (SwitchState != Turntable_NewSwitchState)
+	{
+      Turntable_NewSwitchState = SwitchState;
+      if (Turntable_NewSwitchState == LOW)
+      {	
+        Turntable_OldAction = Turntable_NewAction;
+        Turntable_NewAction = POS;                         // Bridge in next position
+        PrintStatus();
+      }
     }
   }
-  Turntable_OldSwitchState = Turntable_NewSwitchState;
+  Turntable_OldSwitchState = SwitchState;
 } // END Turntable_CheckSwitch
 
 
@@ -349,5 +385,6 @@ void PrintStatus()
   Serial.print(Output_Pin);
   Serial.println();
 } // END PrintStatus
+
 
 
