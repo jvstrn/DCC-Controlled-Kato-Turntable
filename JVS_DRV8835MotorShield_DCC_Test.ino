@@ -36,7 +36,7 @@ enum Turntable_NewActions Turntable_NewAction = POS;
 
 const char* Turntable_State[] = {"T1CW", "T1CCW", "TCW", "TCCW", "T180", "STOP", "POS", "MCW", "MCCW"};
 
-DRV8835MotorShield        Turntable;                       // Turntable Motor M1 = Bridge, Motor M2 = Lock
+DRV8835MotorShield  Turntable;                             // Turntable Motor M1 = Bridge, Motor M2 = Lock
 
 typedef struct
 {
@@ -193,17 +193,13 @@ void DCC_Accessory_CheckStatus()
         {
           Output_Pin = DCC_Accessory[addr].OutputPin1;     // Set Arduino Output Pin
           Turntable_OldAction = Turntable_NewAction;
-          Turntable_NewAction = STOP;
-          //PrintStatus();
-          //Turntable_Stop();                                // Motor M1 Stop
+          Turntable_NewAction = STOP;                      // Motor M1 Stop
         }
         if (DCC_Accessory[addr].Button == 1)               // Green Button : 1 = INPUT
         {
           Output_Pin = DCC_Accessory[addr].OutputPin2;     // Set Arduino Output Pin
           Turntable_OldAction = Turntable_NewAction;
-          Turntable_NewAction = STOP;
-          //PrintStatus();
-          //Turntable_Stop();                                // Motor M1 Stop
+          Turntable_NewAction = STOP;                      // Motor M1 Stop
         }
         break;
       case (226):                                          // DCC Address LDT 226 0 = CLEAR, 1 = TURN 180
@@ -211,9 +207,7 @@ void DCC_Accessory_CheckStatus()
         {
           Output_Pin = DCC_Accessory[addr].OutputPin1;     // Set Arduino Output Pin
           Turntable_OldAction = Turntable_NewAction;
-          Turntable_NewAction = STOP;
-          //PrintStatus();
-          //Turntable_Stop();                                // Motor M1 Stop
+          Turntable_NewAction = STOP;                      // Motor M1 Stop
         }
         if (DCC_Accessory[addr].Button == 1)               // Green Button : 1 = TURN 180
         {
@@ -223,7 +217,6 @@ void DCC_Accessory_CheckStatus()
             Turntable_NewTrack = Turntable_NewTrack - maxTrack;
           Turntable_OldAction = Turntable_NewAction;
           Turntable_NewAction = T180;
-          //PrintStatus();
         }
         break;
       case (227):                                          // DCC Address LDT 227 0 = 1 STEP CW, 1 = 1 STEP CCW
@@ -234,9 +227,7 @@ void DCC_Accessory_CheckStatus()
           if (Turntable_NewTrack >= maxTrack)              // From Track 35 to Track 0
             Turntable_NewTrack = Turntable_NewTrack - maxTrack;
           Turntable_OldAction = Turntable_NewAction;
-          Turntable_NewAction = T1CW;
-          //PrintStatus();
-          //Turntable_MotorCW();                             // Motor M1 Forward
+          Turntable_NewAction = T1CW;                      // Motor M1 TURN 1 Step ClockWise
         }
         if (DCC_Accessory[addr].Button == 1)               // Green Button : 1 = TURN 1 Step Counter ClockWise
         {
@@ -245,9 +236,7 @@ void DCC_Accessory_CheckStatus()
           if (Turntable_NewTrack < 0)                      // From Track 0 to Track 35
             Turntable_NewTrack = Turntable_NewTrack + maxTrack;
           Turntable_OldAction = Turntable_NewAction;
-          Turntable_NewAction = T1CCW;
-          //PrintStatus();
-          //Turntable_MotorCCW();                            // Motor M1 Reverse
+          Turntable_NewAction = T1CCW;                     // Motor M1 TURN 1 Step Counter ClockWise
         }
         break;
       default:
