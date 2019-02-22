@@ -14,7 +14,7 @@ DCC Address LDT 225 0 = END, 1 = INPUT (For now both will stop Turntable)
 DCC Address LDT 226 0 = CLEAR, 1 = TURN 180
 DCC Address LDT 227 0 = 1 STEP CW, 1 = 1 STEP CCW
 
-2019-02-23:
+2019-02-23
 Now working with:
 DCC Address LDT 225 0 = STOP
 DCC Address LDT 227 0 = 1 STEP CW, 1 = 1 STEP CCW
