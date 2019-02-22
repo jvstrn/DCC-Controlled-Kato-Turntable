@@ -7,6 +7,7 @@ http://www.katousa.com/N/Unitrack/Turntable.html
 http://www.katousa.com/images/unitrack/20-283.jpg
 
 Followed the standard from Littfinski DatenTechnik (LDT) TurnTable Decoder TT-DEC
+
 https://www.ldt-infocenter.com/dokuwiki/doku.php?id=en:tt-dec
 
 DCC Address LDT 225 0 = END, 1 = INPUT (For now both will stop Turntable)
