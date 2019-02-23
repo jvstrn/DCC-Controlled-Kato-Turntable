@@ -1,4 +1,4 @@
-DCC controlled Kato N-scale Turntable 20-283<BR>
+DCC Controlled Kato N-scale Turntable 20-283<BR>
 --------------------------------------------
 http://www.katousa.com/N/Unitrack/Turntable.html<BR>
 http://www.katousa.com/images/unitrack/20-283.jpg<BR>
