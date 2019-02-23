@@ -1,6 +1,6 @@
 First test with DCC controlled Kato N-scale Turntable 20-283<BR>
-http://www.katousa.com/N/Unitrack/Turntable.html
-http://www.katousa.com/images/unitrack/20-283.jpg
+http://www.katousa.com/N/Unitrack/Turntable.html<BR>
+http://www.katousa.com/images/unitrack/20-283.jpg<BR>
 
 Followed the standard from Littfinski DatenTechnik (LDT) TurnTable Decoder TT-DEC<BR>
 https://www.ldt-infocenter.com/dokuwiki/doku.php?id=en:tt-dec<BR>
@@ -14,8 +14,8 @@ DCC Address are:
 <BR>
 Used Components:<BR>
 Pololu DRV8835 Dual Motor Driver Shield for Arduino<BR>
-https://www.pololu.com/product/2511
-https://github.com/pololu/drv8835-motor-shield
+https://www.pololu.com/product/2511<BR>
+https://github.com/pololu/drv8835-motor-shield<BR>
   
 2019-02-23
 ----------
