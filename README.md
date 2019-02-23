@@ -18,10 +18,18 @@ Pololu DRV8835 Dual Motor Driver Shield for Arduino<BR>
 https://www.pololu.com/product/2511<BR>
 https://github.com/pololu/drv8835-motor-shield<BR>
 
-2019-02-23 - First Test
+2019-02-22 - First Test
 ----------
 Now working with DCC Address:
 * 225 - 0 = STOP
 * 226 - 0 = STOP
+* 227 - 0 = 1 STEP CW
+* 227 - 1 = 1 STEP CCW
+
+2019-02-23 - Improved Postion Detection; no false stop commands
+----------
+Now working with DCC Address:
+* 225 - 0 = STOP
+* 226 - 0 = POS (Set Track = 0 when Bridge in Home Position)
 * 227 - 0 = 1 STEP CW
 * 227 - 1 = 1 STEP CCW
