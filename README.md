@@ -11,12 +11,10 @@ DCC Address are:
 * 226 - 1 = TURN 180
 * 227 - 0 = 1 STEP CW
 * 227 - 1 = 1 STEP CCW
-<BR>
 Used Components:<BR>
 Pololu DRV8835 Dual Motor Driver Shield for Arduino<BR>
 https://www.pololu.com/product/2511<BR>
 https://github.com/pololu/drv8835-motor-shield<BR>
-  
 2019-02-23
 ----------
 Now working with DCC Address:
