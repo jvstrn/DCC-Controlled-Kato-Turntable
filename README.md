@@ -2,8 +2,8 @@ First test with DCC controlled Kato N-scale Turntable 20-283
 * http://www.katousa.com/N/Unitrack/Turntable.html
 * http://www.katousa.com/images/unitrack/20-283.jpg
 
-Followed the standard from Littfinski DatenTechnik (LDT) TurnTable Decoder TT-DEC
-* https://www.ldt-infocenter.com/dokuwiki/doku.php?id=en:tt-dec
+Followed the standard from Littfinski DatenTechnik (LDT) TurnTable Decoder TT-DEC<BR>
+https://www.ldt-infocenter.com/dokuwiki/doku.php?id=en:tt-dec<BR>
 DCC Address are:
 * 225 - 0 = END
 * 225 - 1 = INPUT (For now both will stop Turntable)
