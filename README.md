@@ -1,4 +1,5 @@
-First test with DCC controlled Kato N-scale Turntable 20-283<BR>
+DCC controlled Kato N-scale Turntable 20-283<BR>
+--------------------------------------------
 http://www.katousa.com/N/Unitrack/Turntable.html<BR>
 http://www.katousa.com/images/unitrack/20-283.jpg<BR>
 
@@ -17,7 +18,7 @@ Pololu DRV8835 Dual Motor Driver Shield for Arduino<BR>
 https://www.pololu.com/product/2511<BR>
 https://github.com/pololu/drv8835-motor-shield<BR>
 
-2019-02-23
+2019-02-23 - First Test
 ----------
 Now working with DCC Address:
 * 225 - 0 = STOP
