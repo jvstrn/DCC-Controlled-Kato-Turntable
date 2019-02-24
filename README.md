@@ -33,3 +33,14 @@ Now working with DCC Address:
 * 226 - 0 = POS (Set Track = 0 when Bridge in Home Position)
 * 227 - 0 = 1 STEP CW
 * 227 - 1 = 1 STEP CCW
+
+2019-02-24 - Added Turn 180 and Goto Track
+----------
+Now working with DCC Address:
+* 225 - 0 = STOP
+* 226 - 0 = POS (Set Track = 0 when Bridge in Home Position)
+* 226 - 1 = T180 (Turn 180 degrees ClockWise)
+* 227 - 0 = 1 STEP CW
+* 227 - 1 = 1 STEP CCW
+* 229 - 0 = Goto Track 3
+* 229 - 1 = Goto Track 33
