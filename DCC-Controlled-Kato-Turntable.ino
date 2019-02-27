@@ -3,8 +3,8 @@
 
 #define kDCC_INTERRUPT                   0                 // DCC Interrupt 0
 #define DCC_PIN                          2                 // DCC signal = Interrupt 0
-#define LED_PIN                         13                 // Onboard Arduino LED Pin
-#define TURNTABLE_SWITCH_PIN             6                 // Kato Turntable Pin 1
+#define LED_PIN                         13                 // Onboard Arduino LED Pin = Bridge in Position
+#define TURNTABLE_SWITCH_PIN             4                 // Kato Turntable Pin 1
 #define MAX_DCC_Accessories              4                 // Number of DCC Accessory Decoders
 #define maxSpeed                       200                 // Speed between -400 = Reversed to 400 = Forward (-3 to +3 VDC)
 #define maxTrack                        36                 // Total Number of Turntable Tracks
@@ -77,7 +77,7 @@ void setup()
   Serial.begin(38400);
   Serial.println("DCC Packet Analyze");
   pinMode(TURNTABLE_SWITCH_PIN, INPUT);                    // Kato Turntable Pin 1
-  pinMode(LED_PIN, OUTPUT);                                // Internal LED Arduino Pin 13
+  pinMode(LED_PIN, OUTPUT);                                // Onboard Arduino LED Pin = Bridge in Position
   digitalWrite(LED_PIN,LOW);                               // Turn Off Arduino LED at startup
   pinMode(DCC_PIN,INPUT_PULLUP);                           // Interrupt 0 with internal pull up resistor (can get rid of external 10k)
   DCC.SetBasicAccessoryDecoderPacketHandler(BasicAccDecoderPacket_Handler, true);
@@ -117,8 +117,8 @@ void DCC_Accessory_ConfigureDecoderFunctions()
   DCC_Accessory[0].Button        =     0;                  // Accessory Button: 0 = Off (Red), 1 = On (Green)
   DCC_Accessory[0].Track1        =     0;                  // Turntable Track 1
   DCC_Accessory[0].Track2        =     0;                  // Turntable Track 2
-  DCC_Accessory[2].OutputPin1    =    13;                  // Arduino Output Pin 13 = Onboard LED
-  DCC_Accessory[2].OutputPin2    =    13;                  // Arduino Output Pin 13 = Onboard LED
+//  DCC_Accessory[0].OutputPin1    =    13;                  // Arduino Output Pin 13 = Onboard LED
+//  DCC_Accessory[0].OutputPin2    =    13;                  // Arduino Output Pin 13 = Onboard LED
   DCC_Accessory[0].Finished      =     1;                  // Command Busy = 0 or Finished = 1
   DCC_Accessory[0].Active        =     0;                  // Command Not Active = 0, Active = 1
   DCC_Accessory[0].durationMilli =   250;                  // Pulse Time in ms
@@ -127,8 +127,8 @@ void DCC_Accessory_ConfigureDecoderFunctions()
   DCC_Accessory[1].Button        =     0;                  // Accessory Button: 0 = Off (Red), 1 = On (Green)
   DCC_Accessory[1].Track1        =     0;                  // Turntable Track 1
   DCC_Accessory[1].Track2        =     0;                  // Turntable Track 2
-  DCC_Accessory[2].OutputPin1    =    13;                  // Arduino Output Pin 13 = Onboard LED
-  DCC_Accessory[2].OutputPin2    =    14;                  // Arduino Output Pin 14 = Yellow LED
+//  DCC_Accessory[1].OutputPin1    =    13;                  // Arduino Output Pin 13 = Onboard LED
+  DCC_Accessory[1].OutputPin2    =    14;                  // Arduino Output Pin 14 = Yellow LED
   DCC_Accessory[1].Finished      =     1;                  // Command Busy = 0 or Finished = 1
   DCC_Accessory[1].Active        =     0;                  // Command Not Active = 0, Active = 1
   DCC_Accessory[1].durationMilli =   250;                  // Pulse Time in ms
@@ -280,6 +280,16 @@ void DCC_Accessory_CheckStatus()
 } // END DCC_Accessory_CheckStatus
 
 
+void DCC_Accessory_LED_OFF()
+{
+  for (int i = 0; i < MAX_DCC_Accessories; i++)
+  {
+    digitalWrite(DCC_Accessory[i].OutputPin1, LOW);        // LED OFF
+    digitalWrite(DCC_Accessory[i].OutputPin2, LOW);        // LED OFF
+  }
+} // END DCC_Accessory_LED_OFF
+
+
 void loop()
 {
   DCC_Accessory_CheckStatus();                             // Check DCC Accessory Status
@@ -311,7 +321,6 @@ void loop()
     
     if (Turntable_Current == Turntable_NewTrack)           // Bridge in Position
     {
-      digitalWrite(Output_Pin, LOW);                       // LED OFF
       Turntable_Stop();                                    // Motor M1 Stop
       Turntable_OldAction = Turntable_NewAction;
       Turntable_NewAction = STOP;                          // Action: Stop Motor M1
@@ -375,8 +384,6 @@ void loop()
 
 void Turntable_Stop()                                      // Motor M1 Stop
 {
-  digitalWrite(LED_PIN, HIGH);                             // LED ON
-  digitalWrite(Output_Pin, LOW);                           // LED OFF
   switch (Turntable_OldAction)
   {
     case MCW:                                              // Motor was turning ClockWise
@@ -385,6 +392,8 @@ void Turntable_Stop()                                      // Motor M1 Stop
         delay(3);                                          // Delay to get better bridge to track position
         Turntable.setM1Speed(speedValue);                  // Motor M1 Speed 0
       }
+      digitalWrite(LED_PIN, HIGH);                         // LED ON = Onboard Arduino LED Pin = Bridge in Position
+      digitalWrite(Output_Pin, LOW);                       // LED OFF
       break;
     case MCCW:                                             // Motor was turning Counter ClockWise
       for (speedValue; speedValue < 0; speedValue++)       // Decrease speed to 0
@@ -392,10 +401,15 @@ void Turntable_Stop()                                      // Motor M1 Stop
         delay(3);                                          // Delay to get better bridge to track position
         Turntable.setM1Speed(speedValue);                  // Motor M1 Speed 0
       }
+      digitalWrite(LED_PIN, HIGH);                         // LED ON = Onboard Arduino LED Pin = Bridge in Position
+      digitalWrite(Output_Pin, LOW);                       // LED OFF
       break;
     case STOP:                                             // Immediate stop
       speedValue = 0;
-      Turntable.setM1Speed(speedValue);                             // Motor M1 Speed 0
+      Turntable.setM1Speed(speedValue);                    // Motor M1 Speed 0
+      digitalWrite(LED_PIN, HIGH);                         // LED ON = Onboard Arduino LED Pin = Bridge in Position
+      digitalWrite(Output_Pin, LOW);                       // LED OFF
+      DCC_Accessory_LED_OFF();
       break;
     default:
       break;
@@ -405,7 +419,7 @@ void Turntable_Stop()                                      // Motor M1 Stop
 
 void Turntable_MotorCW()                                   // Motor M1 Forward
 {
-  digitalWrite(LED_PIN, LOW);                              // LED OFF
+  digitalWrite(LED_PIN, LOW);                              // LED OFF = Onboard Arduino LED Pin = Bridge in Position
   digitalWrite(Output_Pin, HIGH);                          // LED ON
   speedValue = maxSpeed;                                   // Positive = Forward
   Turntable.setM1Speed(speedValue);                        // Motor M1 Speed value
@@ -415,7 +429,7 @@ void Turntable_MotorCW()                                   // Motor M1 Forward
 
 void Turntable_MotorCCW()                                  // Motor M1 Reverse
 {
-  digitalWrite(LED_PIN, LOW);                              // LED OFF
+  digitalWrite(LED_PIN, LOW);                              // LED OFF = Onboard Arduino LED Pin = Bridge in Position
   digitalWrite(Output_Pin, HIGH);                          // LED ON
   speedValue = -maxSpeed;                                  // Negative = Reverse
   Turntable.setM1Speed(speedValue);                        // Motor M1 Speed value
@@ -437,7 +451,6 @@ void Turntable_CheckSwitch()                               // From HIGH to LOW =
       Turntable_NewSwitchState = SwitchState;
       if (Turntable_NewSwitchState == LOW)
       {
-        digitalWrite(Output_Pin, LOW);                     // LED OFF
         Turntable_OldAction = Turntable_NewAction;
         Turntable_NewAction = POS;                         // Bridge in next position
         Serial.print("Turntable_CheckSwitch     --> ");
@@ -483,4 +496,3 @@ void PrintStatus()
   Serial.print(speedValue);
   Serial.println();
 } // END PrintStatus
-
