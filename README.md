@@ -44,3 +44,7 @@ Now working with DCC Address:
 * 227 - 1 = 1 STEP CCW
 * 229 - 0 = Goto Track 3
 * 229 - 1 = Goto Track 33
+
+2019-03-13 - Small Demo Video
+----------
+https://youtu.be/28wLVEbTYVs
