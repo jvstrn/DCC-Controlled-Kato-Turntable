@@ -6,12 +6,12 @@ http://www.katousa.com/images/unitrack/20-283.jpg<BR>
 Followed the standard from Littfinski DatenTechnik (LDT) TurnTable Decoder TT-DEC<BR>
 https://www.ldt-infocenter.com/dokuwiki/doku.php?id=en:tt-dec<BR>
 DCC Address are:
-* 225 - 0 = END
-* 225 - 1 = INPUT (For now both will stop Turntable)
-* 226 - 0 = CLEAR
-* 226 - 1 = TURN 180
-* 227 - 0 = 1 STEP CW
-* 227 - 1 = 1 STEP CCW
+* 225 - 0 = Red Button   = END
+* 225 - 1 = Green Button = INPUT (For now both will stop Turntable)
+* 226 - 0 = Red Button   = CLEAR
+* 226 - 1 = Green Button = TURN 180
+* 227 - 0 = Red Button   = 1 STEP CW
+* 227 - 1 = Green Button = 1 STEP CCW
 
 Used Components:<BR>
 Pololu DRV8835 Dual Motor Driver Shield for Arduino<BR>
