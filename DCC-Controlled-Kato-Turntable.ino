@@ -6,7 +6,7 @@
 #define LED_PIN                         13                 // Onboard Arduino LED Pin = Bridge in Position
 #define TURNTABLE_SWITCH_PIN             4                 // Kato Turntable Pin 1
 #define MAX_DCC_Accessories              4                 // Number of DCC Accessory Decoders
-#define maxSpeed                       200                 // Speed between -400 = Reversed to 400 = Forward (-3 to +3 VDC)
+#define maxSpeed                       120                 // Speed between -400 = Reversed to 400 = Forward (-5 to +5 VDC)
 #define maxTrack                        36                 // Total Number of Turntable Tracks
 
 byte Output_Pin                     =   13;                // Arduino LED Pin
@@ -51,7 +51,7 @@ enum Turntable_NewActions                                  // Possible Turntable
 
 enum Turntable_NewActions Turntable_OldAction = STOP;      // Stores Turntable Previous Action
 enum Turntable_NewActions Turntable_NewAction = STOP;      // Stores Turntable New Action
-enum Turntable_NewActions Turntable_Action = STOP;         // Stores Turntable Requested Action
+enum Turntable_NewActions Turntable_Action    = STOP;      // Stores Turntable Requested Action
 
 typedef struct                                             // Begin DCC Accessory Structure
 {
