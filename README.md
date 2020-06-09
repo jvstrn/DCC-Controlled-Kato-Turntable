@@ -21,7 +21,7 @@ http://www.esu.eu/en/products/digital-control/<BR>
 Uhlenbrock Intellibox and iTrain<BR>
 https://www.uhlenbrock.de/de_DE/produkte/digizen/index.htm<BR>
 
-iTrain:<BR>
+Model railroad control program called: iTrain:<BR>
 https://www.berros.eu/en/itrain/<BR>
   
 2019-03-13 - Small Demo Video
