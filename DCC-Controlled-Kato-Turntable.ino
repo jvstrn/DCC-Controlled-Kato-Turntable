@@ -9,19 +9,19 @@
 #define maxSpeed                       120                 // Speed between -400 = Reversed to 400 = Forward (-5 to +5 VDC)
 #define maxTrack                        36                 // Total Number of Turntable Tracks
 
-byte Output_Pin                     =   13;                // Arduino LED Pin
-int Turntable_Count                 =    0;                // Track Counter
-int Turntable_Current               =    0;                // Current Turntable Track
-int Turntable_NewTrack              =    0;                // New Turntable Track
+uint8_t Output_Pin                  =   13;                // Arduino LED Pin
+uint8_t Turntable_Count             =    0;                // Track Counter
+uint8_t Turntable_Current           =    0;                // Current Turntable Track
+uint8_t Turntable_NewTrack          =    0;                // New Turntable Track
 int speedValue                      =    0;                // Turntable Motor Speed
 int Turntable_NewSwitchState        = HIGH;                // New Switch Status (From HIGH to LOW = Bridge in position)
 int Turntable_OldSwitchState        = HIGH;                // Old Switch Status (HIGH = Bridge not in position)
 unsigned long Turntable_TurnStart   =    0;                // Start time to turn before stop
-unsigned long Turntable_TurnTime    = 1000;                // Minimun time to turn before stop
+unsigned long Turntable_TurnTime    = 1000;                // Minimum time in ms to turn before stop
 unsigned long Turntable_SwitchTime  =    0;                // Last time the output pin was toggled
 unsigned long Turntable_SwitchDelay =    2;                // Debounce time in ms
 
-const char* Turntable_State[] =                            // Possible Turntable States
+const char* Turntable_States[] =                           // Possible Turntable States
 {
   "T1CW",                                                  // Turn 1 Step ClockWise
   "T1CCW",                                                 // Turn 1 Step Counter ClockWise
@@ -56,11 +56,11 @@ enum Turntable_NewActions Turntable_Action    = STOP;      // Stores Turntable R
 typedef struct                                             // Begin DCC Accessory Structure
 {
   int               Address;                               // DCC Address to respond to
-  byte              Button;                                // Accessory Button: 0 = Off (Red), 1 = On (Green)
-  int               Track1;                                // Turntable Track 1
-  int               Track2;                                // Turntable Track 2
-  int               OutputPin1;                            // Arduino Output Pin 1
-  int               OutputPin2;                            // Arduino Output Pin 2
+  uint8_t           Button;                                // Accessory Button: 0 = Off (Red), 1 = On (Green)
+  uint8_t           Position0;                             // Turntable Position0
+  uint8_t           Position1;                             // Turntable Position1
+  uint8_t           OutputPin1;                            // Arduino Output Pin 1
+  uint8_t           OutputPin2;                            // Arduino Output Pin 2
   boolean           Finished;                              // Command Busy = 0 or Finished = 1 (Ready for next command)
   boolean           Active;                                // Command Not Active = 0, Active = 1
   unsigned long     durationMilli;                         // Pulse Time in ms
@@ -79,13 +79,13 @@ void setup()
   pinMode(TURNTABLE_SWITCH_PIN, INPUT);                    // Kato Turntable Pin 1
   pinMode(LED_PIN, OUTPUT);                                // Onboard Arduino LED Pin = Bridge in Position
   digitalWrite(LED_PIN,LOW);                               // Turn Off Arduino LED at startup
-  pinMode(DCC_PIN,INPUT_PULLUP);                           // Interrupt 0 with internal pull up resistor (can get rid of external 10k)
+  pinMode(DCC_PIN,INPUT_PULLUP);                           // Interrupt 0 with internal pull up resistor
   DCC.SetBasicAccessoryDecoderPacketHandler(BasicAccDecoderPacket_Handler, true);
   DCC_Accessory_ConfigureDecoderFunctions();
   DCC.SetupDecoder( 0x00, 0x00, kDCC_INTERRUPT );
   for (int i = 0; i < MAX_DCC_Accessories; i++)
   {
-    DCC_Accessory[i].Button = 0;                            // Disable all DCC decoders
+    DCC_Accessory[i].Button = 0;                           // Switch off all DCC decoders addresses
   }
 } // END setup
 
@@ -115,8 +115,8 @@ void DCC_Accessory_ConfigureDecoderFunctions()
 {
   DCC_Accessory[0].Address       =   225;                  // DCC Address 225 0 = END, 1 = INPUT (For now both will stop Turntable)
   DCC_Accessory[0].Button        =     0;                  // Accessory Button: 0 = Off (Red), 1 = On (Green)
-  DCC_Accessory[0].Track1        =     0;                  // Turntable Track 1
-  DCC_Accessory[0].Track2        =     0;                  // Turntable Track 2
+  DCC_Accessory[0].Position0     =     0;                  // Turntable Position0 - not used in this function
+  DCC_Accessory[0].Position1     =     0;                  // Turntable Position1 - not used in this function
 //  DCC_Accessory[0].OutputPin1    =    13;                  // Arduino Output Pin 13 = Onboard LED
 //  DCC_Accessory[0].OutputPin2    =    13;                  // Arduino Output Pin 13 = Onboard LED
   DCC_Accessory[0].Finished      =     1;                  // Command Busy = 0 or Finished = 1
@@ -125,8 +125,8 @@ void DCC_Accessory_ConfigureDecoderFunctions()
 
   DCC_Accessory[1].Address       =   226;                  // DCC Address 226 0 = CLEAR, 1 = TURN 180
   DCC_Accessory[1].Button        =     0;                  // Accessory Button: 0 = Off (Red), 1 = On (Green)
-  DCC_Accessory[1].Track1        =     0;                  // Turntable Track 1
-  DCC_Accessory[1].Track2        =     0;                  // Turntable Track 2
+  DCC_Accessory[1].Position0     =     0;                  // Turntable Position0 - not used in this function
+  DCC_Accessory[1].Position1     =     0;                  // Turntable Position1 - not used in this function
 //  DCC_Accessory[1].OutputPin1    =    13;                  // Arduino Output Pin 13 = Onboard LED
   DCC_Accessory[1].OutputPin2    =    14;                  // Arduino Output Pin 14 = Yellow LED
   DCC_Accessory[1].Finished      =     1;                  // Command Busy = 0 or Finished = 1
@@ -135,8 +135,8 @@ void DCC_Accessory_ConfigureDecoderFunctions()
   
   DCC_Accessory[2].Address       =   227;                  // DCC Address 227 0 = 1 STEP CW, 1 = 1 STEP CCW
   DCC_Accessory[2].Button        =     0;                  // Accessory Button: 0 = Off (Red), 1 = On (Green)
-  DCC_Accessory[2].Track1        =     0;                  // Turntable Track 1
-  DCC_Accessory[2].Track2        =     0;                  // Turntable Track 2
+  DCC_Accessory[2].Position0     =     0;                  // Turntable Position0 - not used in this function
+  DCC_Accessory[2].Position1     =     0;                  // Turntable Position1 - not used in this function
   DCC_Accessory[2].OutputPin1    =    11;                  // Arduino Output Pin 11 = Red LED
   DCC_Accessory[2].OutputPin2    =    12;                  // Arduino Output Pin 12 = Green LED
   DCC_Accessory[2].Finished      =     1;                  // Command Busy = 0 or Finished = 1
@@ -145,8 +145,8 @@ void DCC_Accessory_ConfigureDecoderFunctions()
 
   DCC_Accessory[3].Address       =   229;                  // DCC Address 229 0 = 1 STEP CW, 1 = 1 STEP CCW
   DCC_Accessory[3].Button        =     0;                  // Accessory Button: 0 = Off (Red), 1 = On (Green)
-  DCC_Accessory[3].Track1        =     3;                  // Turntable Track 1
-  DCC_Accessory[3].Track2        =    33;                  // Turntable Track 2
+  DCC_Accessory[3].Position0     =     3;                  // Turntable Position0 = Track 3
+  DCC_Accessory[3].Position1     =    33;                  // Turntable Position1 = Track 33
   DCC_Accessory[3].OutputPin1    =    11;                  // Arduino Output Pin 11 = Red LED
   DCC_Accessory[3].OutputPin2    =    12;                  // Arduino Output Pin 12 = Green LED
   DCC_Accessory[3].Finished      =     1;                  // Command Busy = 0 or Finished = 1
@@ -191,7 +191,7 @@ void DCC_Accessory_CheckStatus()
     switch (DCC_Accessory[addr].Address)
     {
       case (225):                                          // DCC Address 225 0 = END, 1 = INPUT
-        if (DCC_Accessory[addr].Button == 0)               // Red Button   : 0 = END
+        if (DCC_Accessory[addr].Button == 0)               // Red Button    : 0 = END
         {
           Output_Pin = DCC_Accessory[addr].OutputPin1;     // Set Arduino Output Pin
           Turntable_NewTrack = Turntable_Current;          // Stop at current track
@@ -199,7 +199,7 @@ void DCC_Accessory_CheckStatus()
           Turntable_NewAction = STOP;                      // Action: Stop Motor M1
           Turntable_Action = STOP;                         // Requested Action = STOP
         }
-        if (DCC_Accessory[addr].Button == 1)               // Green Button : 1 = INPUT
+        if (DCC_Accessory[addr].Button == 1)               // Green Button  : 1 = INPUT
         {
           Output_Pin = DCC_Accessory[addr].OutputPin2;     // Set Arduino Output Pin
           Turntable_OldAction = STOP;                      // Action: Stop Motor M1
@@ -208,21 +208,23 @@ void DCC_Accessory_CheckStatus()
         }
         break;
       case (226):                                          // DCC Address 226 0 = CLEAR, 1 = TURN 180
-        if (DCC_Accessory[addr].Button == 0)               // Red Button   : 0 = CLEAR
+        if (DCC_Accessory[addr].Button == 0)               // Red Button    : 0 = CLEAR
         {
-          Turntable_Current = 0;                           // Bridge in Home Position
-          Turntable_NewTrack = 0;                          // Bridge in Home Position
+          Turntable_Current = 1;                           // Bridge in Home Position
+          Turntable_NewTrack = 1;                          // Bridge in Home Position
           Output_Pin = DCC_Accessory[addr].OutputPin1;     // Set Arduino Output Pin
           Turntable_OldAction = Turntable_NewAction;
           Turntable_NewAction = STOP;                      // Action: Bridge in Position
           Turntable_Action = STOP;                         // Requested Action = STOP
         }
-        if (DCC_Accessory[addr].Button == 1)               // Green Button : 1 = TURN 180
+        if (DCC_Accessory[addr].Button == 1)               // Green Button  : 1 = TURN 180
         {
           Output_Pin = DCC_Accessory[addr].OutputPin2;     // Set Arduino Output Pin
           Turntable_NewTrack = Turntable_Current + (maxTrack / 2);
           if (Turntable_NewTrack >= maxTrack)
+          {
             Turntable_NewTrack = Turntable_NewTrack - maxTrack;
+          }
           Turntable_OldAction = Turntable_NewAction;
           Turntable_NewAction = T180;                      // Action: Turn Motor M1 18 Steps ClockWise
           Turntable_Action = T180;                         // Requested Action = T180
@@ -233,8 +235,10 @@ void DCC_Accessory_CheckStatus()
         {
           Output_Pin = DCC_Accessory[addr].OutputPin1;     // Set Arduino Output Pin
           Turntable_NewTrack = Turntable_Current + 1;
-          if (Turntable_NewTrack >= maxTrack)              // From Track 35 to Track 0
+          if (Turntable_NewTrack > maxTrack)               // From Track 36 to Track 1
+          {
             Turntable_NewTrack = Turntable_NewTrack - maxTrack;
+          }
           Turntable_OldAction = Turntable_NewAction;
           Turntable_NewAction = T1CW;                      // Action: Turn Motor M1 1 Step ClockWise
           Turntable_Action = T1CW;                         // Requested Action = T1CW
@@ -243,26 +247,28 @@ void DCC_Accessory_CheckStatus()
         {
           Output_Pin = DCC_Accessory[addr].OutputPin2;     // Set Arduino Output Pin
           Turntable_NewTrack = Turntable_Current - 1;
-          if (Turntable_NewTrack < 0)                      // From Track 0 to Track 35
+          if (Turntable_NewTrack = 0)                      // From Track 1 to Track 36
+          {
             Turntable_NewTrack = Turntable_NewTrack + maxTrack;
+          }
           Turntable_OldAction = Turntable_NewAction;
           Turntable_NewAction = T1CCW;                     // Action: Turn Motor M1 1 Step Counter ClockWise
           Turntable_Action = T1CCW;                        // Requested Action = T1CCW
         }
         break;
       default:
-        if (DCC_Accessory[addr].Button == 0)               // Red Button   : 0 = Goto Track Track1
+        if (DCC_Accessory[addr].Button == 0)               // Red Button   : 0 = Goto Track Position0
         {
           Output_Pin = DCC_Accessory[addr].OutputPin1;     // Set Arduino Output Pin
-          Turntable_NewTrack = DCC_Accessory[addr].Track1;
-					SetDirection();                                  // Determine Turn ClockWise or Counter ClockWise
+          Turntable_NewTrack = DCC_Accessory[addr].Position0;
+          SetDirection();                                  // Determine Turn ClockWise or Counter ClockWise
           Turntable_Action = Turntable_NewAction;          // Requested Action = Depends on SetDirection
         }
-        if (DCC_Accessory[addr].Button == 1)               // Green Button : 1 = Goto Track Track2
+        if (DCC_Accessory[addr].Button == 1)               // Green Button : 1 = Goto Track Position1
         {
           Output_Pin = DCC_Accessory[addr].OutputPin2;     // Set Arduino Output Pin
-          Turntable_NewTrack = DCC_Accessory[addr].Track2;					
-					SetDirection();                                  // Determine Turn ClockWise or Counter ClockWise
+          Turntable_NewTrack = DCC_Accessory[addr].Position1;					
+          SetDirection();                                  // Determine Turn ClockWise or Counter ClockWise
           Turntable_Action = Turntable_NewAction;          // Requested Action = Depends on SetDirection
         }
         break;
@@ -304,7 +310,7 @@ void loop()
     if (Turntable_OldAction == MCW)
     {
       Turntable_Current = Turntable_Current + 1;
-      if (Turntable_Current >= maxTrack)                   // From Track 35 to Track 0
+      if (Turntable_Current > maxTrack)                    // From Track 36 to Track 1
         Turntable_Current = Turntable_Current - maxTrack;
       Serial.print("Loop: Check MCW           --> ");
       PrintStatus();                                       // Print Actions and Track Numbers
@@ -313,7 +319,7 @@ void loop()
     if (Turntable_OldAction == MCCW)
     {
       Turntable_Current = Turntable_Current - 1;
-      if (Turntable_Current < 0)                           // From Track 0 to Track 35
+      if (Turntable_Current = 0)                           // From Track 1 to Track 36
         Turntable_Current = Turntable_Current + maxTrack;
       Serial.print("Loop: Check MCCW          --> ");
       PrintStatus();                                       // Print Actions and Track Numbers
@@ -361,8 +367,8 @@ void loop()
     Serial.print("Loop: Check T180          --> ");
     PrintStatus();                                         // Print Actions and Track Numbers
   }
-	
-	if ((Turntable_OldAction != TCW) && (Turntable_NewAction == TCW))
+  
+  if ((Turntable_OldAction != TCW) && (Turntable_NewAction == TCW))
   {
     Turntable_MotorCW();                                   // Motor M1 Forward
     Turntable_OldAction = Turntable_NewAction;
@@ -387,7 +393,7 @@ void Turntable_Stop()                                      // Motor M1 Stop
   switch (Turntable_OldAction)
   {
     case MCW:                                              // Motor was turning ClockWise
-      for (speedValue; speedValue > 0; speedValue--)       // Decrease speed to 0
+      for (speedValue; speedValue > 0; --speedValue)       // Decrease speed to 0
       {
         delay(3);                                          // Delay to get better bridge to track position
         Turntable.setM1Speed(speedValue);                  // Motor M1 Speed 0
@@ -396,7 +402,7 @@ void Turntable_Stop()                                      // Motor M1 Stop
       digitalWrite(Output_Pin, LOW);                       // LED OFF
       break;
     case MCCW:                                             // Motor was turning Counter ClockWise
-      for (speedValue; speedValue < 0; speedValue++)       // Decrease speed to 0
+      for (speedValue; speedValue < 0; ++speedValue)       // Decrease speed to 0
       {
         delay(3);                                          // Delay to get better bridge to track position
         Turntable.setM1Speed(speedValue);                  // Motor M1 Speed 0
@@ -442,7 +448,7 @@ void Turntable_CheckSwitch()                               // From HIGH to LOW =
   int SwitchState = digitalRead(TURNTABLE_SWITCH_PIN);
   if (SwitchState != Turntable_OldSwitchState)
   {
-	  Turntable_SwitchTime = millis();
+    Turntable_SwitchTime = millis();
   }
   if ((millis() - Turntable_SwitchTime) > Turntable_SwitchDelay)
   {
@@ -464,16 +470,16 @@ void Turntable_CheckSwitch()                               // From HIGH to LOW =
 
 void SetDirection()
 {
-	if (Turntable_NewTrack <= (Turntable_Current + (maxTrack / 2)))
-	{
+  if (Turntable_NewTrack <= (Turntable_Current + (maxTrack / 2)))
+  {
     Turntable_OldAction = Turntable_NewAction;
     Turntable_NewAction = TCW;                             // Action: Turn Motor M1 ClockWise
-	}
-	else
+  }
+  else
   {
     Turntable_OldAction = Turntable_NewAction;
     Turntable_NewAction = TCCW;                            // Action: Turn Motor M1 Counter ClockWise
-	}
+  }
   Serial.print("SetDirection              --> ");
   PrintStatus();                                           // Print Actions and Track Numbers
 }
@@ -481,11 +487,11 @@ void SetDirection()
 
 void PrintStatus()
 {
-  Serial.print(Turntable_State[Turntable_Action]);
+  Serial.print(Turntable_States[Turntable_Action]);
   Serial.print(": Old: ");
-  Serial.print(Turntable_State[Turntable_OldAction]);
+  Serial.print(Turntable_States[Turntable_OldAction]);
   Serial.print(", New: ");
-  Serial.print(Turntable_State[Turntable_NewAction]);
+  Serial.print(Turntable_States[Turntable_NewAction]);
   Serial.print(", Current: ");
   Serial.print(Turntable_Current);
   Serial.print(", NewTrack: ");
