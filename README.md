@@ -13,6 +13,13 @@ https://github.com/pololu/drv8835-motor-shield<BR>
 
 DCC Shield for Arduno:<BR>
 https://www.arcomora.com/mardec/<BR>
+
+Controller will be used with:<BR>
+ECoS 1 and iTrain<BR>
+Intellibox and iTrain<BR>
+
+iTrain:<BR>
+https://www.berros.eu/en/itrain/<BR>
   
 2019-03-13 - Small Demo Video
 ----------
