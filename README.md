@@ -15,8 +15,11 @@ DCC Shield for Arduno:<BR>
 https://www.arcomora.com/mardec/<BR>
 
 Controller will be used with:<BR>
-ECoS 1 and iTrain<BR>
-Intellibox and iTrain<BR>
+ESU ECoS and iTrain<BR>
+http://www.esu.eu/en/products/digital-control/<BR>
+
+Uhlenbrock Intellibox and iTrain<BR>
+https://www.uhlenbrock.de/de_DE/produkte/digizen/index.htm<BR>
 
 iTrain:<BR>
 https://www.berros.eu/en/itrain/<BR>
