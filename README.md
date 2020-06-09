@@ -9,6 +9,9 @@ Used Components:<BR>
 Pololu DRV8835 Dual Motor Driver Shield for Arduino<BR>
 https://www.pololu.com/product/2511<BR>
 https://github.com/pololu/drv8835-motor-shield<BR>
+
+DCC Shield for Arduno:<BR>
+https://www.arcomora.com/mardec/<BR>
   
 2019-03-13 - Small Demo Video
 ----------
