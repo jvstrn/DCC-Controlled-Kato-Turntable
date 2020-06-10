@@ -5,10 +5,24 @@ http://www.katousa.com/images/unitrack/20-283.jpg<BR>
 
 Followed the standard from Littfinski DatenTechnik (LDT) TurnTable Decoder TT-DEC<BR>
 https://www.ldt-infocenter.com/dokuwiki/doku.php?id=en:tt-dec<BR>
+
 Used Components:<BR>
 Pololu DRV8835 Dual Motor Driver Shield for Arduino<BR>
 https://www.pololu.com/product/2511<BR>
 https://github.com/pololu/drv8835-motor-shield<BR>
+
+DCC Shield for Arduno:<BR>
+https://www.arcomora.com/mardec/<BR>
+
+Controller will be used with:<BR>
+ESU ECoS and iTrain<BR>
+http://www.esu.eu/en/products/digital-control/<BR>
+
+Uhlenbrock Intellibox and iTrain<BR>
+https://www.uhlenbrock.de/de_DE/produkte/digizen/index.htm<BR>
+
+Model railroad control program called: iTrain:<BR>
+https://www.berros.eu/en/itrain/<BR>
   
 2019-03-13 - Small Demo Video
 ----------
