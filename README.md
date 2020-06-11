@@ -24,6 +24,35 @@ https://www.uhlenbrock.de/de_DE/produkte/digizen/index.htm<BR>
 Model railroad control program called: iTrain:<BR>
 https://www.berros.eu/en/itrain/<BR>
   
+2020-06-11 - Added Additional Addresses for Direct Goto Track xx
+----------
+Now working with DCC Address:
+* 225 - 0 = Red Button --> STOP
+* 226 - 0 = Red Button --> POS (Set Track = 0 when Bridge in Home Position)
+* 226 - 1 = Green Button --> T180 (Turn 180 degrees ClockWise)
+* 227 - 0 = Red Button --> 1 STEP CW
+* 227 - 1 = Green Button --> 1 STEP CCW
+* 228 - 0 = Red Button --> Turn CW
+* 228 - 1 = Green Button --> Turn CCW
+* 229 - 0 = Red Button --> Goto Track 1
+* 229 - 1 = Green Button --> Goto Track 2
+* 230 - 0 = Red Button --> Goto Track 3
+* 230 - 1 = Green Button --> Goto Track 4
+* 231 - 0 = Red Button --> Goto Track 5
+* 231 - 1 = Green Button --> Goto Track 6
+* 232 - 0 = Red Button --> Goto Track 7
+* 232 - 1 = Green Button --> Goto Track 8
+* 233 - 0 = Red Button --> Goto Track 9
+* 233 - 1 = Green Button --> Goto Track 10
+* 234 - 0 = Red Button --> Goto Track 11
+* 234 - 1 = Green Button --> Goto Track 12
+* 235 - 0 = Red Button --> Goto Track 31
+* 235 - 1 = Green Button --> Goto Track 32
+* 236 - 0 = Red Button --> Goto Track 33
+* 236 - 1 = Green Button --> Goto Track 34
+* 237 - 0 = Red Button --> Goto Track 35
+* 237 - 1 = Green Button --> Goto Track 36
+
 2019-03-13 - Small Demo Video
 ----------
 https://youtu.be/28wLVEbTYVs
@@ -36,8 +65,10 @@ Now working with DCC Address:
 * 226 - 1 = Green Button --> T180 (Turn 180 degrees ClockWise)
 * 227 - 0 = Red Button --> 1 STEP CW
 * 227 - 1 = Green Button --> 1 STEP CCW
-* 229 - 0 = Red Button --> Goto Track 3
-* 229 - 1 = Green Button --> Goto Track 33
+* 228 - 0 = Red Button --> Turn CW
+* 228 - 1 = Green Button --> Turn CCW
+* 229 - 0 = Red Button --> Goto Track 1
+* 229 - 1 = Green Button --> Goto Track 2
 
 2019-02-23 - Improved Postion Detection; no false stop commands
 ----------
