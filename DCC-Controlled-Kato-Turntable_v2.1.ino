@@ -1,3 +1,5 @@
+// DCC-Controlled-Kato-Turntable_v2.1
+
 #include <DRV8835MotorShield.h>                            // Pololu DRV8835 Dual Motor Driver Shield for Arduino
 #include <DCC_Decoder.h>                                   // Mynabay DCC library
 
@@ -5,7 +7,7 @@ const kDCC_INTERRUPT                    0;                 // DCC Interrupt 0
 const DCC_PIN                           2;                 // DCC signal = Interrupt 0
 const LED_PIN                          13;                 // Onboard Arduino LED Pin = Bridge in Position
 const TURNTABLE_SWITCH_PIN              4;                 // Kato Turntable Pin 1
-const MAX_DCC_Accessories              14;                 // Number of DCC Accessory Decoders
+const MAX_DCC_Accessories              13;                 // Number of DCC Accessory Decoders
 const maxSpeed                        120;                 // Speed between -400 = Reversed to 400 = Forward (-5 to +5 VDC)
 const maxTrack                         36;                 // Total Number of Turntable Tracks
 
