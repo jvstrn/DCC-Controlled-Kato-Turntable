@@ -399,14 +399,23 @@ void DCC_Accessory_CheckStatus()
 } // END DCC_Accessory_CheckStatus
 
 
-void DCC_Accessory_LED_OFF()
+void PrintStatus()
 {
-  for (int i = 0; i < MAX_DCC_Accessories; i++)
-  {
-    digitalWrite(DCC_Accessory[i].OutputPin1, LOW);        // LED OFF
-    digitalWrite(DCC_Accessory[i].OutputPin2, LOW);        // LED OFF
-  }
-} // END DCC_Accessory_LED_OFF
+  Serial.print(Turntable_States[Turntable_Action]);
+  Serial.print(": Old: ");
+  Serial.print(Turntable_States[Turntable_OldAction]);
+  Serial.print(", New: ");
+  Serial.print(Turntable_States[Turntable_NewAction]);
+  Serial.print(", Current: ");
+  Serial.print(Turntable_Current);
+  Serial.print(", NewTrack: ");
+  Serial.print(Turntable_NewTrack);
+  Serial.print(", Output_Pin: ");
+  Serial.print(Output_Pin);
+  Serial.print(", Speed: ");
+  Serial.print(speedValue);
+  Serial.println();
+} // END PrintStatus
 
 
 void loop()
@@ -502,6 +511,16 @@ void loop()
     PrintStatus();                                         // Print Actions and Track Numbers
   }
 } // END loop
+
+
+void DCC_Accessory_LED_OFF()
+{
+  for (int i = 0; i < MAX_DCC_Accessories; i++)
+  {
+    digitalWrite(DCC_Accessory[i].OutputPin1, LOW);        // LED OFF
+    digitalWrite(DCC_Accessory[i].OutputPin2, LOW);        // LED OFF
+  }
+} // END DCC_Accessory_LED_OFF
 
 
 void Turntable_Stop()                                      // Motor M1 Stop
@@ -600,22 +619,3 @@ void SetDirection()
   Serial.print("SetDirection              --> ");
   PrintStatus();                                           // Print Actions and Track Numbers
 }
-
-
-void PrintStatus()
-{
-  Serial.print(Turntable_States[Turntable_Action]);
-  Serial.print(": Old: ");
-  Serial.print(Turntable_States[Turntable_OldAction]);
-  Serial.print(", New: ");
-  Serial.print(Turntable_States[Turntable_NewAction]);
-  Serial.print(", Current: ");
-  Serial.print(Turntable_Current);
-  Serial.print(", NewTrack: ");
-  Serial.print(Turntable_NewTrack);
-  Serial.print(", Output_Pin: ");
-  Serial.print(Output_Pin);
-  Serial.print(", Speed: ");
-  Serial.print(speedValue);
-  Serial.println();
-} // END PrintStatus
