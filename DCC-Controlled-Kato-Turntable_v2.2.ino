@@ -1,23 +1,24 @@
-// DCC-Controlled-Kato-Turntable_v2.1
+// DCC-Controlled-Kato-Turntable_v2.2
 
 #include <DRV8835MotorShield.h>                            // Pololu DRV8835 Dual Motor Driver Shield for Arduino
 #include <DCC_Decoder.h>                                   // Mynabay DCC library
+#include <EEPROM.h>
 
-const kDCC_INTERRUPT                    0;                 // DCC Interrupt 0
-const DCC_PIN                           2;                 // DCC signal = Interrupt 0
-const LED_PIN                          13;                 // Onboard Arduino LED Pin = Bridge in Position
-const TURNTABLE_SWITCH_PIN              4;                 // Kato Turntable Pin 1
-const MAX_DCC_Accessories              13;                 // Number of DCC Accessory Decoders
-const maxSpeed                        120;                 // Speed between -400 = Reversed to 400 = Forward (-5 to +5 VDC)
-const maxTrack                         36;                 // Total Number of Turntable Tracks
+#define kDCC_INTERRUPT                   0                 // DCC Interrupt 0
+const uint8_t DCC_PIN               =    2;                // DCC signal = Interrupt 0
+const uint8_t LED_PIN               =   13;                // Onboard Arduino LED Pin = Bridge in Position
+const uint8_t TURNTABLE_SWITCH_PIN  =    4;                // Kato Turntable Pin 1
+const uint8_t MAX_DCC_Accessories   =   13;                // Number of DCC Accessory Decoders
+const uint8_t maxSpeed              =  120;                // Speed between -400 = Reversed to 400 = Forward (-5 to +5 VDC)
+const uint8_t maxTrack              =   36;                // Total Number of Turntable Tracks
 
+uint8_t EE_Address                  =    0;                // EEPROM Address storing Turntable bridge position
 uint8_t Output_Pin                  =   13;                // Arduino LED Pin
-// uint8_t Turntable_Count             =    0;                // Track Counter
 uint8_t Turntable_Current           =    1;                // Current Turntable Track
 uint8_t Turntable_NewTrack          =    1;                // New Turntable Track
 int speedValue                      =    0;                // Turntable Motor Speed
-int Turntable_NewSwitchState        = HIGH;                // New Switch Status (From HIGH to LOW = Bridge in position)
-int Turntable_OldSwitchState        = HIGH;                // Old Switch Status (HIGH = Bridge not in position)
+int Turntable_NewSwitchState        = HIGH;                // New Switch Status (From HIGH to LOW = Turntable bridge in position)
+int Turntable_OldSwitchState        = HIGH;                // Old Switch Status (HIGH = Turntable bridge not in position)
 unsigned long Turntable_TurnStart   =    0;                // Start time to turn before stop
 unsigned long Turntable_TurnTime    = 1000;                // Minimum time in ms to turn before stop
 unsigned long Turntable_SwitchTime  =    0;                // Last time the output pin was toggled
@@ -89,6 +90,7 @@ void setup()
   {
     DCC_Accessory[i].Button = 0;                           // Switch off all DCC decoders addresses
   }
+  Turntable_Current = EEPROM.read(EE_Address);             // Read Turntable bridge position from EEPROM
 } // END setup
 
 
@@ -151,8 +153,8 @@ void DCC_Accessory_ConfigureDecoderFunctions()
 								  
   DCC_Accessory[3].Address        =   228;                 // DCC Address 228 0 = Direction CW, 1 = Direction CCW
   DCC_Accessory[3].Button         =     0;                 // Accessory Button: 0 = Off (Red), 1 = On (Green)
+  DCC_Accessory[3].Position0      =     0;                 // Turntable Position0 - not used in this function
   DCC_Accessory[3].Position1      =     0;                 // Turntable Position0 - not used in this function
-  DCC_Accessory[3].Position2      =     0;                 // Turntable Position0 - not used in this function
   DCC_Accessory[3].OutputPin1     =    11;                 // Arduino Output Pin 11 = Red LED
   DCC_Accessory[3].OutputPin2     =    12;                 // Arduino Output Pin 12 = Green LED
   DCC_Accessory[3].Finished       =     1;                 // Command Busy = 0 or Finished = 1
@@ -161,8 +163,8 @@ void DCC_Accessory_ConfigureDecoderFunctions()
 
   DCC_Accessory[4].Address        =   229;                 // DCC Address 229 0 = Goto Track 1 , 1 = Goto Track 2
   DCC_Accessory[4].Button         =     0;                 // Accessory Button: 0 = Off (Red), 1 = On (Green)
-  DCC_Accessory[4].Position1      =     1;                 // Turntable Track 1
-  DCC_Accessory[4].Position2      =     2;                 // Turntable Track 2
+  DCC_Accessory[4].Position0      =     1;                 // Turntable Track 1
+  DCC_Accessory[4].Position1      =     2;                 // Turntable Track 2
   DCC_Accessory[4].OutputPin1     =    11;                 // Arduino Output Pin 11 = Red LED
   DCC_Accessory[4].OutputPin2     =    12;                 // Arduino Output Pin 12 = Green LED
   DCC_Accessory[4].Finished       =     1;                 // Command Busy = 0 or Finished = 1
@@ -171,8 +173,8 @@ void DCC_Accessory_ConfigureDecoderFunctions()
 
   DCC_Accessory[5].Address        =   230;                 // DCC Address 230 0 = Goto Track 3 , 1 = Goto Track 4
   DCC_Accessory[5].Button         =     0;                 // Accessory Button: 0 = Off (Red), 1 = On (Green)
-  DCC_Accessory[5].Position1      =     3;                 // Turntable Track 3
-  DCC_Accessory[5].Position2      =     4;                 // Turntable Track 4
+  DCC_Accessory[5].Position0      =     3;                 // Turntable Track 3
+  DCC_Accessory[5].Position1      =     4;                 // Turntable Track 4
   DCC_Accessory[5].OutputPin1     =    11;                 // Arduino Output Pin 11 = Red LED
   DCC_Accessory[5].OutputPin2     =    12;                 // Arduino Output Pin 12 = Green LED
   DCC_Accessory[5].Finished       =     1;                 // Command Busy = 0 or Finished = 1
@@ -181,8 +183,8 @@ void DCC_Accessory_ConfigureDecoderFunctions()
 
   DCC_Accessory[6].Address        =   231;                 // DCC Address 231 0 = Goto Track 5 , 1 = Goto Track 6
   DCC_Accessory[6].Button         =     0;                 // Accessory Button: 0 = Off (Red), 1 = On (Green)
-  DCC_Accessory[6].Position1      =     5;                 // Turntable Track 5
-  DCC_Accessory[6].Position2      =     6;                 // Turntable Track 6
+  DCC_Accessory[6].Position0      =     5;                 // Turntable Track 5
+  DCC_Accessory[6].Position1      =     6;                 // Turntable Track 6
   DCC_Accessory[6].OutputPin1     =    11;                 // Arduino Output Pin 11 = Red LED
   DCC_Accessory[6].OutputPin2     =    12;                 // Arduino Output Pin 12 = Green LED
   DCC_Accessory[6].Finished       =     1;                 // Command Busy = 0 or Finished = 1
@@ -191,8 +193,8 @@ void DCC_Accessory_ConfigureDecoderFunctions()
 
   DCC_Accessory[7].Address        =   232;                 // DCC Address 232 0 = Goto Track 7 , 1 = Goto Track 8
   DCC_Accessory[7].Button         =     0;                 // Accessory Button: 0 = Off (Red), 1 = On (Green)
-  DCC_Accessory[7].Position1      =     7;                 // Turntable Track 7
-  DCC_Accessory[7].Position2      =     8;                 // Turntable Track 8
+  DCC_Accessory[7].Position0      =     7;                 // Turntable Track 7
+  DCC_Accessory[7].Position1      =     8;                 // Turntable Track 8
   DCC_Accessory[7].OutputPin1     =    11;                 // Arduino Output Pin 11 = Red LED
   DCC_Accessory[7].OutputPin2     =    12;                 // Arduino Output Pin 12 = Green LED
   DCC_Accessory[7].Finished       =     1;                 // Command Busy = 0 or Finished = 1
@@ -201,8 +203,8 @@ void DCC_Accessory_ConfigureDecoderFunctions()
 
   DCC_Accessory[8].Address        =   233;                 // DCC Address 233 0 = Goto Track 9 , 1 = Goto Track 10
   DCC_Accessory[8].Button         =     0;                 // Accessory Button: 0 = Off (Red), 1 = On (Green)
-  DCC_Accessory[8].Position1      =     9;                 // Turntable Track 9
-  DCC_Accessory[8].Position2      =    10;                 // Turntable Track 10
+  DCC_Accessory[8].Position0      =     9;                 // Turntable Track 9
+  DCC_Accessory[8].Position1      =    10;                 // Turntable Track 10
   DCC_Accessory[8].OutputPin1     =    11;                 // Arduino Output Pin 11 = Red LED
   DCC_Accessory[8].OutputPin2     =    12;                 // Arduino Output Pin 12 = Green LED
   DCC_Accessory[8].Finished       =     1;                 // Command Busy = 0 or Finished = 1
@@ -211,8 +213,8 @@ void DCC_Accessory_ConfigureDecoderFunctions()
 
   DCC_Accessory[9].Address        =   234;                 // DCC Address 234 0 = Goto Track 11 , 1 = Goto Track 12
   DCC_Accessory[9].Button         =     0;                 // Accessory Button: 0 = Off (Red), 1 = On (Green)
-  DCC_Accessory[9].Position1      =    11;                 // Turntable Track 11
-  DCC_Accessory[9].Position2      =    12;                 // Turntable Track 12
+  DCC_Accessory[9].Position0      =    11;                 // Turntable Track 11
+  DCC_Accessory[9].Position1      =    12;                 // Turntable Track 12
   DCC_Accessory[9].OutputPin1     =    11;                 // Arduino Output Pin 11 = Red LED
   DCC_Accessory[9].OutputPin2     =    12;                 // Arduino Output Pin 12 = Green LED
   DCC_Accessory[9].Finished       =     1;                 // Command Busy = 0 or Finished = 1
@@ -221,8 +223,8 @@ void DCC_Accessory_ConfigureDecoderFunctions()
 
   DCC_Accessory[10].Address       =   235;                 // DCC Address 235 0 = Goto Track 13 , 1 = Goto Track 14
   DCC_Accessory[10].Button        =     0;                 // Accessory Button: 0 = Off (Red), 1 = On (Green)
-  DCC_Accessory[10].Position1     =    31;                 // Turntable Track 31
-  DCC_Accessory[10].Position2     =    32;                 // Turntable Track 32
+  DCC_Accessory[10].Position0     =    31;                 // Turntable Track 31
+  DCC_Accessory[10].Position1     =    32;                 // Turntable Track 32
   DCC_Accessory[10].OutputPin1    =    11;                 // Arduino Output Pin 11 = Red LED
   DCC_Accessory[10].OutputPin2    =    12;                 // Arduino Output Pin 12 = Green LED
   DCC_Accessory[10].Finished      =     1;                 // Command Busy = 0 or Finished = 1
@@ -231,8 +233,8 @@ void DCC_Accessory_ConfigureDecoderFunctions()
 
   DCC_Accessory[11].Address       =   236;                 // DCC Address 236 0 = Goto Track 15 , 1 = Goto Track 16
   DCC_Accessory[11].Button        =     0;                 // Accessory Button: 0 = Off (Red), 1 = On (Green)
-  DCC_Accessory[11].Position1     =    33;                 // Turntable Track 33
-  DCC_Accessory[11].Position2     =    34;                 // Turntable Track 34
+  DCC_Accessory[11].Position0     =    33;                 // Turntable Track 33
+  DCC_Accessory[11].Position1     =    34;                 // Turntable Track 34
   DCC_Accessory[11].OutputPin1    =    11;                 // Arduino Output Pin 11 = Red LED
   DCC_Accessory[11].OutputPin2    =    12;                 // Arduino Output Pin 12 = Green LED
   DCC_Accessory[11].Finished      =     1;                 // Command Busy = 0 or Finished = 1
@@ -241,8 +243,8 @@ void DCC_Accessory_ConfigureDecoderFunctions()
 
   DCC_Accessory[12].Address       =   237;                 // DCC Address 237 0 = Goto Track 17 , 1 = Goto Track 18
   DCC_Accessory[12].Button        =     0;                 // Accessory Button: 0 = Off (Red), 1 = On (Green)
-  DCC_Accessory[12].Position1     =    35;                 // Turntable Track 35
-  DCC_Accessory[12].Position2     =    36;                 // Turntable Track 36
+  DCC_Accessory[12].Position0     =    35;                 // Turntable Track 35
+  DCC_Accessory[12].Position1     =    36;                 // Turntable Track 36
   DCC_Accessory[12].OutputPin1    =    11;                 // Arduino Output Pin 11 = Red LED
   DCC_Accessory[12].OutputPin2    =    12;                 // Arduino Output Pin 12 = Green LED
   DCC_Accessory[12].Finished      =     1;                 // Command Busy = 0 or Finished = 1
@@ -537,6 +539,7 @@ void Turntable_Stop()                                      // Motor M1 Stop
       }
       digitalWrite(LED_PIN, HIGH);                         // LED ON = Onboard Arduino LED Pin = Bridge in Position
       digitalWrite(Output_Pin, LOW);                       // LED OFF
+//      EEPROM.update(EE_Address, Turntable_Current);        // Store Turntable bridge position into EEPROM
       break;
     case MCCW:                                             // Motor was turning Counter ClockWise
       for (speedValue; speedValue < 0; ++speedValue)       // Decrease speed to 0
@@ -546,12 +549,14 @@ void Turntable_Stop()                                      // Motor M1 Stop
       }
       digitalWrite(LED_PIN, HIGH);                         // LED ON = Onboard Arduino LED Pin = Bridge in Position
       digitalWrite(Output_Pin, LOW);                       // LED OFF
+//      EEPROM.update(EE_Address, Turntable_Current);        // Store Turntable bridge position into EEPROM
       break;
     case STOP:                                             // Immediate stop
       speedValue = 0;
       Turntable.setM1Speed(speedValue);                    // Motor M1 Speed 0
       digitalWrite(LED_PIN, HIGH);                         // LED ON = Onboard Arduino LED Pin = Bridge in Position
       digitalWrite(Output_Pin, LOW);                       // LED OFF
+      EEPROM.update(EE_Address, Turntable_Current);        // Store Turntable bridge position into EEPROM
       DCC_Accessory_LED_OFF();
       break;
     default:
