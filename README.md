@@ -23,7 +23,11 @@ https://www.uhlenbrock.de/de_DE/produkte/digizen/index.htm<BR>
 
 Model railroad control program called: iTrain:<BR>
 https://www.berros.eu/en/itrain/<BR>
-  
+
+2020-06-14 - Added EEPROM capability to store turntable bridge position when positioned and read turntable bridge position at power up.
+----------
+
+
 2020-06-11 - Added Additional Addresses for Direct Goto Track xx
 ----------
 Now working with DCC Address:
