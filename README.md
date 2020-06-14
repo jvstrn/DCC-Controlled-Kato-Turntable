@@ -26,7 +26,7 @@ https://www.berros.eu/en/itrain/<BR>
 
 2020-06-14 - Added EEPROM capability
 ----------
-Store turntable bridge position when positioned
+Store turntable bridge position when positioned<BR>
 Read turntable bridge position at power up.
 
 2020-06-11 - Added Additional Addresses for Direct Goto Track xx
