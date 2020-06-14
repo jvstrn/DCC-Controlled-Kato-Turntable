@@ -31,7 +31,7 @@ Read turntable bridge position at power up.
 
 2020-06-11 - Added Additional Addresses for Direct Goto Track xx
 ----------
-Now working with DCC Address:
+Now working with DCC Addresses:
 * 225 - 0 = Red Button --> STOP
 * 226 - 0 = Red Button --> POS (Set Track = 0 when Bridge in Home Position)
 * 226 - 1 = Green Button --> T180 (Turn 180 degrees ClockWise)
