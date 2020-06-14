@@ -64,7 +64,7 @@ https://youtu.be/28wLVEbTYVs
 
 2019-02-24 - Added Turn 180 and Goto Track
 ----------
-Now working with DCC Address:
+Now working with DCC Addresses:
 * 225 - 0 = Red Button --> STOP
 * 226 - 0 = Red Button --> POS (Set Track = 0 when Bridge in Home Position)
 * 226 - 1 = Green Button --> T180 (Turn 180 degrees ClockWise)
@@ -77,7 +77,7 @@ Now working with DCC Address:
 
 2019-02-23 - Improved Postion Detection; no false stop commands
 ----------
-Now working with DCC Address:
+Now working with DCC Addresses:
 * 225 - 0 = STOP
 * 226 - 0 = POS (Set Track = 0 when Bridge in Home Position)
 * 227 - 0 = 1 STEP CW
