@@ -5,12 +5,15 @@
 #include <EEPROM.h>
 
 #define kDCC_INTERRUPT                   0                 // DCC Interrupt 0
-const uint8_t DCC_PIN               =    2;                // DCC signal = Interrupt 0
-const uint8_t LED_PIN               =   13;                // Onboard Arduino LED Pin = Bridge in Position
-const uint8_t TURNTABLE_SWITCH_PIN  =    4;                // Kato Turntable Pin 1
 const uint8_t MAX_DCC_Accessories   =   13;                // Number of DCC Accessory Decoders
 const uint8_t maxSpeed              =  120;                // Speed between -400 = Reversed to 400 = Forward (-5 to +5 VDC)
 const uint8_t maxTrack              =   36;                // Total Number of Turntable Tracks
+const uint8_t DCC_PIN               =    2;                // Arduino Output Pin  2 = DCC signal  = Interrupt 0
+const uint8_t TURNTABLE_SWITCH_PIN  =    4;                // Arduino Output Pin  4 = Turntable Trigger = Cable Pin 1
+                                                           // Arduino Output Pin 11 = Red LED     = Function Red
+                                                           // Arduino Output Pin 12 = Green LED   = Function Green
+const uint8_t LED_PIN               =   13;                // Arduino Output Pin 13 = Onboard LED = Bridge in Position
+                                                           // Arduino Output Pin 14 = Yellow LED  = TURN 180
 
 uint8_t EE_Address                  =    0;                // EEPROM Address storing Turntable bridge position
 uint8_t Output_Pin                  =   13;                // Arduino LED Pin
