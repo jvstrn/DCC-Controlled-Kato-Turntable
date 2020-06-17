@@ -1,10 +1,9 @@
-// DCC-Controlled-Kato-Turntable_v2.2
-
+//---------------------------------------------------------// DCC-Controlled-Kato-Turntable_v2.2
 #include <DRV8835MotorShield.h>                            // Pololu DRV8835 Dual Motor Driver Shield for Arduino
 #include <DCC_Decoder.h>                                   // Mynabay DCC library
-#include <EEPROM.h>
-
+#include <EEPROM.h>                                        // Standard Arduino EEPROM library
 #define kDCC_INTERRUPT                   0                 // DCC Interrupt 0
+DRV8835MotorShield               Turntable;                // Turntable Motor M1 = Bridge, Motor M2 = Lock
 const uint8_t MAX_DCC_Accessories   =   13;                // Number of DCC Accessory Decoders
 const uint8_t maxSpeed              =  120;                // Speed between -400 = Reversed to 400 = Forward (-5 to +5 VDC)
 const uint8_t maxTrack              =   36;                // Total Number of Turntable Tracks
@@ -14,7 +13,6 @@ const uint8_t TURNTABLE_SWITCH_PIN  =    4;                // Arduino Output Pin
                                                            // Arduino Output Pin 12 = Green LED   = Function Green
 const uint8_t LED_PIN               =   13;                // Arduino Output Pin 13 = Onboard LED = Bridge in Position
                                                            // Arduino Output Pin 14 = Yellow LED  = TURN 180
-
 uint8_t EE_Address                  =    0;                // EEPROM Address storing Turntable bridge position
 uint8_t Output_Pin                  =   13;                // Arduino LED Pin
 uint8_t Turntable_Current           =    1;                // Current Turntable Track
@@ -75,13 +73,12 @@ typedef struct                                             // Begin DCC Accessor
 DCC_Accessory_Structure;                                   // End DCC Accessory Structure
 
 DCC_Accessory_Structure DCC_Accessory[MAX_DCC_Accessories];// DCC Accessory
-DRV8835MotorShield      Turntable;                         // Turntable Motor M1 = Bridge, Motor M2 = Lock
 
 
 void setup()
 {
   Serial.begin(38400);
-  Serial.println("DCC Packet Analyze");
+  Serial.println("DCC-Controlled-Kato-Turntable_v2.2");    // Show loaded sketch
   pinMode(TURNTABLE_SWITCH_PIN, INPUT);                    // Kato Turntable Pin 1
   pinMode(LED_PIN, OUTPUT);                                // Onboard Arduino LED Pin = Bridge in Position
   digitalWrite(LED_PIN,LOW);                               // Turn Off Arduino LED at startup
@@ -128,8 +125,8 @@ void DCC_Accessory_ConfigureDecoderFunctions()
   DCC_Accessory[0].Button         =     0;                 // Accessory Button: 0 = Off (Red), 1 = On (Green)
   DCC_Accessory[0].Position0      =     0;                 // Turntable Position0 - not used in this function
   DCC_Accessory[0].Position1      =     0;                 // Turntable Position1 - not used in this function
-// DCC_Accessory[0].OutputPin1      =    13;                 // Arduino Output Pin 13 = Onboard LED - not used in this function
-// DCC_Accessory[0].OutputPin2      =    13;                 // Arduino Output Pin 13 = Onboard LED - not used in this function
+// DCC_Accessory[0].OutputPin1      =    xx;                 // Arduino Output Pin xx = LED xx - not used in this function
+// DCC_Accessory[0].OutputPin2      =    xx;                 // Arduino Output Pin xx = LED xx - not used in this function
   DCC_Accessory[0].Finished       =     1;                 // Command Busy = 0 or Finished = 1
   DCC_Accessory[0].Active         =     0;                 // Command Not Active = 0, Active = 1
   DCC_Accessory[0].durationMilli  =   250;                 // Pulse Time in ms
@@ -138,7 +135,7 @@ void DCC_Accessory_ConfigureDecoderFunctions()
   DCC_Accessory[1].Button         =     0;                 // Accessory Button: 0 = Off (Red), 1 = On (Green)
   DCC_Accessory[1].Position0      =     0;                 // Turntable Position0 - not used in this function
   DCC_Accessory[1].Position1      =     0;                 // Turntable Position1 - not used in this function
-// DCC_Accessory[1].OutputPin1      =    13;                 // Arduino Output Pin 13 = Onboard LED - not used in this function
+// DCC_Accessory[1].OutputPin1      =    xx;                 // Arduino Output Pin xx = LED xx - not used in this function
   DCC_Accessory[1].OutputPin2     =    14;                 // Arduino Output Pin 14 = Yellow LED
   DCC_Accessory[1].Finished       =     1;                 // Command Busy = 0 or Finished = 1
   DCC_Accessory[1].Active         =     0;                 // Command Not Active = 0, Active = 1
@@ -272,7 +269,7 @@ void DCC_Accessory_ConfigureDecoderFunctions()
 
 void DCC_Accessory_CheckStatus()
 {
-  static int addr = 0;
+  static int addr = 0;                                     // Begin loop through DCC Addresses
   DCC.loop();                                              // Loop DCC Library
   if (DCC_Accessory[addr].Finished && DCC_Accessory[addr].Active)
   {
@@ -401,8 +398,10 @@ void DCC_Accessory_CheckStatus()
     DCC_Accessory[addr].Finished = 1;
     DCC_Accessory[addr].Active = 0;
   }
-  if (++addr >= MAX_DCC_Accessories)
+  if (++addr >= MAX_DCC_Accessories)                       // End loop through DCC Addresses
+  {
     addr = 0;
+  }
 } // END DCC_Accessory_CheckStatus
 
 
