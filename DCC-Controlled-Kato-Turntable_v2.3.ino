@@ -1,4 +1,4 @@
-//---------------------------------------------------------// DCC-Controlled-Kato-Turntable_v2.2
+//---------------------------------------------------------// DCC-Controlled-Kato-Turntable_v2.3
 #include <DRV8835MotorShield.h>                            // Pololu DRV8835 Dual Motor Driver Shield for Arduino
 #include <DCC_Decoder.h>                                   // Mynabay DCC library
 #include <EEPROM.h>                                        // Standard Arduino EEPROM library
@@ -78,7 +78,7 @@ DCC_Accessory_Structure DCC_Accessory[MAX_DCC_Accessories];// DCC Accessory
 void setup()
 {
   Serial.begin(38400);
-  Serial.println("DCC-Controlled-Kato-Turntable_v2.2");    // Show loaded sketch
+  Serial.println("DCC-Controlled-Kato-Turntable_v2.3");    // Show loaded sketch
   pinMode(TURNTABLE_SWITCH_PIN, INPUT);                    // Kato Turntable Pin 1
   pinMode(LED_PIN, OUTPUT);                                // Onboard Arduino LED Pin = Bridge in Position
   digitalWrite(LED_PIN,LOW);                               // Turn Off Arduino LED at startup
@@ -338,7 +338,7 @@ void DCC_Accessory_CheckStatus()
           Turntable_NewTrack = Turntable_Current + 1;
           if (Turntable_NewTrack > maxTrack)               // From Track 36 to Track 1
           {
-            Turntable_NewTrack = Turntable_NewTrack - maxTrack;
+            Turntable_NewTrack = 1;                        // Track (1)
           }
           Turntable_OldAction = Turntable_NewAction;
           Turntable_NewAction = T1CW;                      // Action: Turn Motor M1 1 Step ClockWise
@@ -350,7 +350,7 @@ void DCC_Accessory_CheckStatus()
           Turntable_NewTrack = Turntable_Current - 1;
           if (Turntable_NewTrack = 0)                      // From Track 1 to Track 36
           {
-            Turntable_NewTrack = Turntable_NewTrack + maxTrack;
+            Turntable_NewTrack = maxTrack;                 // Track (maxTrack)
           }
           Turntable_OldAction = Turntable_NewAction;
           Turntable_NewAction = T1CCW;                     // Action: Turn Motor M1 1 Step Counter ClockWise
@@ -435,21 +435,25 @@ void loop()
   
   if ((Turntable_OldAction != POS) && (Turntable_NewAction == POS))
   {
-    if (Turntable_OldAction == MCW)
+    if (Turntable_OldAction == MCW)                        // Move ClockWise
     {
       Turntable_Current = Turntable_Current + 1;
       if (Turntable_Current > maxTrack)                    // From Track 36 to Track 1
-        Turntable_Current = Turntable_Current - maxTrack;
+	  {
+        Turntable_Current = 1;                             // Track (1)
+      }
       Serial.print("Loop: Check MCW           --> ");
       PrintStatus();                                       // Print Actions and Track Numbers
     }
     
-    if (Turntable_OldAction == MCCW)
+    if (Turntable_OldAction == MCCW)                       // Move Counter ClockWise
     {
       Turntable_Current = Turntable_Current - 1;
       if (Turntable_Current = 0)                           // From Track 1 to Track 36
-        Turntable_Current = Turntable_Current + maxTrack;
-      Serial.print("Loop: Check MCCW          --> ");
+	  {
+        Turntable_Current = maxTrack;                      // Track (maxTrack)
+      }
+	  Serial.print("Loop: Check MCCW          --> ");
       PrintStatus();                                       // Print Actions and Track Numbers
     }
     
@@ -461,7 +465,7 @@ void loop()
       Serial.print("Loop: Compare NewTrack    --> ");
       PrintStatus();                                       // Print Actions and Track Numbers
     }
-    else
+    else                                                   // Bridge not in Position
     {
       Turntable_NewAction = Turntable_OldAction;
       Serial.print("Loop: Current is NewTrack --> ");
@@ -471,7 +475,7 @@ void loop()
 
   if ((Turntable_OldAction != T1CW) && (Turntable_NewAction == T1CW))
   {
-    speedValue = maxSpeed;                                 // Positive = Turn ClockWise
+    speedValue = maxSpeed;                                 // Positive = Direction ClockWise
     Turntable_MotorCW();                                   // Motor M1 Forward
     Turntable_OldAction = Turntable_NewAction;
     Turntable_NewAction = MCW;                             // Action: Move Motor M1 ClockWise
@@ -481,7 +485,7 @@ void loop()
   
   if ((Turntable_OldAction != T1CCW) && (Turntable_NewAction == T1CCW))
   {
-    speedValue = -maxSpeed;                                // Negative = Turn Counter ClockWise
+    speedValue = -maxSpeed;                                // Negative = Direction Counter ClockWise
     Turntable_MotorCCW();                                  // Motor M1 Reverse
     Turntable_OldAction = Turntable_NewAction;
     Turntable_NewAction = MCCW;                            // Action: Move Motor M1 Counter ClockWise
@@ -491,7 +495,7 @@ void loop()
   
   if ((Turntable_OldAction != T180) && (Turntable_NewAction == T180))
   {
-    speedValue = maxSpeed;                                 // Positive = Turn ClockWise
+    speedValue = maxSpeed;                                 // Positive = Direction ClockWise
     Turntable_MotorCW();                                   // Motor M1 Forward
     Turntable_OldAction = Turntable_NewAction;
     Turntable_NewAction = MCW;                             // Action: Move Motor M1 ClockWise
@@ -501,6 +505,7 @@ void loop()
   
   if ((Turntable_OldAction != TCW) && (Turntable_NewAction == TCW))
   {
+    speedValue = maxSpeed;                                 // Positive = Direction ClockWise
     Turntable_MotorCW();                                   // Motor M1 Forward
     Turntable_OldAction = Turntable_NewAction;
     Turntable_NewAction = MCW;                             // Action: Move Motor M1 ClockWise
@@ -510,6 +515,7 @@ void loop()
   
   if ((Turntable_OldAction != TCCW) && (Turntable_NewAction == TCCW))
   {
+    speedValue = -maxSpeed;                                // Negative = Direction Counter ClockWise
     Turntable_MotorCCW();                                  // Motor M1 Reverse
     Turntable_OldAction = Turntable_NewAction;
     Turntable_NewAction = MCCW;                            // Action: Move Motor M1 Counter ClockWise
