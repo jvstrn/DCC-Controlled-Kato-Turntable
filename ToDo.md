@@ -1,7 +1,15 @@
 ToDo's:
-1. Create Schema of DCC Shield together with DRV8835 Driver Shield and connections to Kato Turntable
-2. Write current bridge position to EEPROM to restore position after power up Arduino
-3. Test Controller with ECoS 1 and iTrain
-4. Test Controller with Intellibox and iTrain
-5. Test Controller with ECoS 1 and Koploper
-6. Test Controller with Intellibox and Koploper
+-------
+1. Write current bridge position to EEPROM to restore position after power up Arduino
+
+2. Create Schema of DCC Shield together with DRV8835 Driver Shield and connections to Kato Turntable
+
+3. Configure Feedback for: 
+	- Turntable bridge track occupied
+	- Turntable bridge position reached
+
+4a. Test Controller with iTrain andECoS 1
+4b. Test Controller with iTrain andIntellibox
+
+5a. Test Controller with Koploper and ECoS 1
+5b. Test Controller with Koploper and Intellibox
