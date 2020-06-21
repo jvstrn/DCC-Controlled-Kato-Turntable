@@ -32,6 +32,7 @@ const char* Turntable_States[] =                           // Possible Turntable
   "T1CCW",                                                 // Turn 1 Step Counter ClockWise
   "TCW",                                                   // Turn ClockWise
   "TCCW",                                                  // Turn Counter ClockWise
+  "CLEAR",                                                 // Reset Turntable Position to Track 1
   "T180",                                                  // Turn 180
   "STOP",                                                  // Stop Turning
   "POS",                                                   // Bridge in Position
@@ -46,6 +47,7 @@ enum Turntable_NewActions                                  // Possible Turntable
   T1CCW,                                                   // Turn 1 Step Counter ClockWise
   TCW,                                                     // Turn ClockWise
   TCCW,                                                    // Turn Counter ClockWise
+  CLEAR,                                                   // Reset Turntable Position to Track 1
   T180,                                                    // Turn 180
   STOP,                                                    // Stop Turning
   POS,                                                     // Bridge in Position
@@ -461,7 +463,7 @@ void loop()                                                // Main loop
       Turntable_Stop();                                    // Motor M1 Stop
       Turntable_OldAction = Turntable_NewAction;           // Remember Last Action
       Turntable_NewAction = STOP;                          // Action: Stop Motor M1
-      Serial.print("Loop: Compare NewTrack    --> ");      // Print Status Message
+      Serial.print("Loop: Check NewTrack      --> ");      // Print Status Message
       PrintStatus();                                       // Print Actions and Track Numbers
     }
     else                                                   // Bridge not in Position
@@ -519,6 +521,16 @@ void loop()                                                // Main loop
     Turntable_OldAction = Turntable_NewAction;             // Remember Last Action
     Turntable_NewAction = MCCW;                            // Action: Move Motor M1 Counter ClockWise
     Serial.print("Loop: Check TCCW          --> ");        // Print Status Message
+    PrintStatus();                                         // Print Actions and Track Numbers
+  }
+  
+  if ((Turntable_NewAction == CLEAR) && (Turntable_OldAction != CLEAR))
+  {
+    speedValue = maxSpeed;                                 // Positive = Direction ClockWise
+    Turntable_MotorCW();                                   // Motor M1 Forward
+    Turntable_OldAction = Turntable_NewAction;             // Remember Last Action
+    Turntable_NewAction = STOP;                            // Action: Move Motor M1 ClockWise
+    Serial.print("Loop: Check CLEAR         --> ");        // Print Status Message
     PrintStatus();                                         // Print Actions and Track Numbers
   }
 } // END Main loop
