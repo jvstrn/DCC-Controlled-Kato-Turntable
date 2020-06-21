@@ -1,4 +1,4 @@
-//---------------------------------------------------------// DCC-Controlled-Kato-Turntable_v2.3
+//---------------------------------------------------------// DCC-Controlled-Kato-Turntable_v2.4
 #include <DRV8835MotorShield.h>                            // Pololu DRV8835 Dual Motor Driver Shield for Arduino
 #include <DCC_Decoder.h>                                   // Mynabay DCC library
 #include <EEPROM.h>                                        // Standard Arduino EEPROM library
@@ -78,7 +78,7 @@ DCC_Accessory_Structure DCC_Accessory[MAX_DCC_Accessories];// DCC Accessory
 void setup()
 {
   Serial.begin(38400);
-  Serial.println("DCC-Controlled-Kato-Turntable_v2.3");    // Show loaded sketch
+  Serial.println("DCC-Controlled-Kato-Turntable_v2.4");    // Show loaded sketch
   pinMode(TURNTABLE_SWITCH_PIN, INPUT);                    // Kato Turntable Pin 1
   pinMode(LED_PIN, OUTPUT);                                // Onboard Arduino LED Pin = Bridge in Position
   digitalWrite(LED_PIN,LOW);                               // Turn Off Arduino LED at startup
@@ -90,7 +90,7 @@ void setup()
   {
     DCC_Accessory[i].Button = 0;                           // Switch off all DCC decoders addresses
   }
-  Turntable_Current = EEPROM.read(EE_Address);             // Read Turntable bridge position from EEPROM
+//  Turntable_Current = EEPROM.read(EE_Address);             // Read Turntable bridge position from EEPROM
 } // END setup
 
 
@@ -378,14 +378,12 @@ void DCC_Accessory_CheckStatus()
         {
           Output_Pin = DCC_Accessory[addr].OutputPin1;     // Set Arduino Output Pin
           Turntable_NewTrack = DCC_Accessory[addr].Position0;
-          SetDirection();                                  // Determine Turn ClockWise or Counter ClockWise
           Turntable_Action = Turntable_NewAction;          // Requested Action = Depends on SetDirection
         }
         if (DCC_Accessory[addr].Button == 1)               // Green Button : 1 = Goto Track Position1
         {
           Output_Pin = DCC_Accessory[addr].OutputPin2;     // Set Arduino Output Pin
           Turntable_NewTrack = DCC_Accessory[addr].Position1;					
-          SetDirection();                                  // Determine Turn ClockWise or Counter ClockWise
           Turntable_Action = Turntable_NewAction;          // Requested Action = Depends on SetDirection
         }
         break;
@@ -439,7 +437,7 @@ void loop()
     {
       Turntable_Current = Turntable_Current + 1;
       if (Turntable_Current > maxTrack)                    // From Track 36 to Track 1
-	  {
+      {
         Turntable_Current = 1;                             // Track (1)
       }
       Serial.print("Loop: Check MCW           --> ");
@@ -450,10 +448,10 @@ void loop()
     {
       Turntable_Current = Turntable_Current - 1;
       if (Turntable_Current = 0)                           // From Track 1 to Track 36
-	  {
+      {
         Turntable_Current = maxTrack;                      // Track (maxTrack)
       }
-	  Serial.print("Loop: Check MCCW          --> ");
+      Serial.print("Loop: Check MCCW          --> ");
       PrintStatus();                                       // Print Actions and Track Numbers
     }
     
@@ -509,7 +507,7 @@ void loop()
     Turntable_MotorCW();                                   // Motor M1 Forward
     Turntable_OldAction = Turntable_NewAction;
     Turntable_NewAction = MCW;                             // Action: Move Motor M1 ClockWise
-    Serial.print("Loop: Check TCW         --> ");
+    Serial.print("Loop: Check TCW           --> ");
     PrintStatus();                                         // Print Actions and Track Numbers
   }
   
@@ -519,7 +517,7 @@ void loop()
     Turntable_MotorCCW();                                  // Motor M1 Reverse
     Turntable_OldAction = Turntable_NewAction;
     Turntable_NewAction = MCCW;                            // Action: Move Motor M1 Counter ClockWise
-    Serial.print("Loop: Check TCCW        --> ");
+    Serial.print("Loop: Check TCCW          --> ");
     PrintStatus();                                         // Print Actions and Track Numbers
   }
 } // END loop
