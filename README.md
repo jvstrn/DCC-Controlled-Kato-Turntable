@@ -1,5 +1,10 @@
 DCC Controlled Kato N-scale Turntable 20-283<BR>
---------------------------------------------
+--------------------------------------------<BR>
+Development for this project is stopped.<BR>
+New project is started: DCCNext-Controlled-Kato-Turntable<BR>
+https://github.com/jvstrn/DCCNext-Controlled-Kato-Turntable<BR>
+<BR>
+  
 http://www.katousa.com/N/Unitrack/Turntable.html<BR>
 http://www.katousa.com/images/unitrack/20-283.jpg<BR>
 
